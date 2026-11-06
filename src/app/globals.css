@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom crisp scrollbar for review studio and queue */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Diff highlight styling */
+.highlight-violation {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-bottom: 2px wavy #ef4444;
+  padding: 0 3px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.highlight-corrected {
+  background-color: #dcfce7;
+  color: #166534;
+  border-bottom: 2px solid #22c55e;
+  padding: 0 3px;
+  border-radius: 2px;
+  font-weight: 500;
+}
