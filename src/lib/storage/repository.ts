@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import {
   BrandGuideline,
   ApprovedFact,
@@ -22,42 +24,93 @@ import {
   DEMO_METRICS,
 } from './mock-data';
 
-// Singleton in-memory store that persists across API calls within the Node process
-// and can sync to local storage / file if desired.
+interface DatabaseSchema {
+  organization: Organization;
+  users: User[];
+  guidelines: BrandGuideline[];
+  approvedFacts: ApprovedFact[];
+  terminologyRules: TerminologyRule[];
+  brandAssets: BrandAsset[];
+  submissions: ContentSubmission[];
+  currentUser: User;
+}
+
 class BrandGuardRepository {
-  private organization: Organization = { ...DEMO_ORGANIZATION };
-  private users: User[] = [...DEMO_USERS];
-  private guidelines: BrandGuideline[] = [...DEMO_GUIDELINES];
-  private approvedFacts: ApprovedFact[] = [...DEMO_APPROVED_FACTS];
-  private terminologyRules: TerminologyRule[] = [...DEMO_TERMINOLOGY_RULES];
-  private brandAssets: BrandAsset[] = [...DEMO_BRAND_ASSETS];
-  private submissions: ContentSubmission[] = [...DEMO_SUBMISSIONS];
-  private currentUser: User = DEMO_USERS[0]; // Alex Chen by default
+  private dbPath: string;
+  private data: DatabaseSchema;
+
+  constructor() {
+    this.dbPath = path.join(process.cwd(), 'data', 'db.json');
+    this.data = this.loadDatabase();
+  }
+
+  private loadDatabase(): DatabaseSchema {
+    try {
+      if (fs.existsSync(this.dbPath)) {
+        const fileContent = fs.readFileSync(this.dbPath, 'utf-8');
+        const parsed = JSON.parse(fileContent);
+        if (parsed.guidelines && parsed.submissions) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Repository failed to read data/db.json, falling back to seeded dataset:', e);
+    }
+
+    // Default seeded state
+    const initialData: DatabaseSchema = {
+      organization: { ...DEMO_ORGANIZATION },
+      users: [...DEMO_USERS],
+      guidelines: [...DEMO_GUIDELINES],
+      approvedFacts: [...DEMO_APPROVED_FACTS],
+      terminologyRules: [...DEMO_TERMINOLOGY_RULES],
+      brandAssets: [...DEMO_BRAND_ASSETS],
+      submissions: [...DEMO_SUBMISSIONS],
+      currentUser: DEMO_USERS[0],
+    };
+
+    this.saveDatabase(initialData);
+    return initialData;
+  }
+
+  private saveDatabase(dataToSave?: DatabaseSchema) {
+    try {
+      const data = dataToSave || this.data;
+      const dir = path.dirname(this.dbPath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(this.dbPath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('Failed to persist to data/db.json (running in-memory):', e);
+    }
+  }
 
   // --- Organization & Users ---
   getOrganization(): Organization {
-    return this.organization;
+    return this.data.organization;
   }
 
   getUsers(): User[] {
-    return this.users;
+    return this.data.users;
   }
 
   getCurrentUser(): User {
-    return this.currentUser;
+    return this.data.currentUser || this.data.users[0];
   }
 
   setCurrentUser(userId: string): User {
-    const user = this.users.find((u) => u.id === userId);
+    const user = this.data.users.find((u) => u.id === userId);
     if (user) {
-      this.currentUser = user;
+      this.data.currentUser = user;
+      this.saveDatabase();
     }
-    return this.currentUser;
+    return this.data.currentUser;
   }
 
   // --- Brand Guidelines ---
   listGuidelines(params?: { category?: string; query?: string; activeOnly?: boolean }): BrandGuideline[] {
-    let result = [...this.guidelines];
+    let result = [...this.data.guidelines];
 
     if (params?.activeOnly) {
       result = result.filter((g) => g.isActive);
@@ -82,44 +135,48 @@ class BrandGuardRepository {
   }
 
   getGuideline(id: string): BrandGuideline | undefined {
-    return this.guidelines.find((g) => g.id === id);
+    return this.data.guidelines.find((g) => g.id === id);
   }
 
   createGuideline(data: Omit<BrandGuideline, 'id' | 'createdAt' | 'updatedAt' | 'organizationId'>): BrandGuideline {
     const newGuideline: BrandGuideline = {
       ...data,
       id: `guide_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      organizationId: this.organization.id,
+      organizationId: this.data.organization.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    this.guidelines.unshift(newGuideline);
+    this.data.guidelines.unshift(newGuideline);
+    this.saveDatabase();
     return newGuideline;
   }
 
   updateGuideline(id: string, updates: Partial<BrandGuideline>): BrandGuideline | undefined {
-    const index = this.guidelines.findIndex((g) => g.id === id);
+    const index = this.data.guidelines.findIndex((g) => g.id === id);
     if (index === -1) return undefined;
 
-    this.guidelines[index] = {
-      ...this.guidelines[index],
+    this.data.guidelines[index] = {
+      ...this.data.guidelines[index],
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    return this.guidelines[index];
+    this.saveDatabase();
+    return this.data.guidelines[index];
   }
 
   deleteGuideline(id: string): boolean {
-    const initialLen = this.guidelines.length;
-    this.guidelines = this.guidelines.filter((g) => g.id !== id);
-    return this.guidelines.length < initialLen;
+    const initialLen = this.data.guidelines.length;
+    this.data.guidelines = this.data.guidelines.filter((g) => g.id !== id);
+    const deleted = this.data.guidelines.length < initialLen;
+    if (deleted) this.saveDatabase();
+    return deleted;
   }
 
   // --- Approved Facts ---
   listApprovedFacts(query?: string): ApprovedFact[] {
-    if (!query || query.trim() === '') return this.approvedFacts;
+    if (!query || query.trim() === '') return this.data.approvedFacts;
     const q = query.toLowerCase();
-    return this.approvedFacts.filter(
+    return this.data.approvedFacts.filter(
       (f) =>
         f.claim.toLowerCase().includes(q) ||
         f.verificationSource.toLowerCase().includes(q) ||
@@ -131,35 +188,37 @@ class BrandGuardRepository {
     const newFact: ApprovedFact = {
       ...data,
       id: `fact_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      organizationId: this.organization.id,
+      organizationId: this.data.organization.id,
     };
-    this.approvedFacts.unshift(newFact);
+    this.data.approvedFacts.unshift(newFact);
+    this.saveDatabase();
     return newFact;
   }
 
   // --- Terminology Rules ---
   listTerminologyRules(): TerminologyRule[] {
-    return this.terminologyRules;
+    return this.data.terminologyRules;
   }
 
   createTerminologyRule(data: Omit<TerminologyRule, 'id' | 'organizationId'>): TerminologyRule {
     const newRule: TerminologyRule = {
       ...data,
       id: `term_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      organizationId: this.organization.id,
+      organizationId: this.data.organization.id,
     };
-    this.terminologyRules.unshift(newRule);
+    this.data.terminologyRules.unshift(newRule);
+    this.saveDatabase();
     return newRule;
   }
 
   // --- Brand Assets ---
   listBrandAssets(): BrandAsset[] {
-    return this.brandAssets;
+    return this.data.brandAssets;
   }
 
   // --- Content Submissions & Review Queue ---
   listSubmissions(params?: { status?: string; creatorId?: string; query?: string }): ContentSubmission[] {
-    let result = [...this.submissions];
+    let result = [...this.data.submissions];
 
     if (params?.status && params.status !== 'all') {
       result = result.filter((s) => s.status.toLowerCase() === params.status?.toLowerCase());
@@ -183,7 +242,7 @@ class BrandGuardRepository {
   }
 
   getSubmission(id: string): ContentSubmission | undefined {
-    return this.submissions.find((s) => s.id === id);
+    return this.data.submissions.find((s) => s.id === id);
   }
 
   createSubmission(data: {
@@ -194,12 +253,12 @@ class BrandGuardRepository {
     creator?: User;
     latestReview?: ReviewResult;
   }): ContentSubmission {
-    const creator = data.creator || this.currentUser;
+    const creator = data.creator || this.getCurrentUser();
     const now = new Date().toISOString();
 
     const submission: ContentSubmission = {
       id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      organizationId: this.organization.id,
+      organizationId: this.data.organization.id,
       title: data.title,
       contentType: data.contentType,
       rawText: data.rawText,
@@ -223,20 +282,22 @@ class BrandGuardRepository {
       updatedAt: now,
     };
 
-    this.submissions.unshift(submission);
+    this.data.submissions.unshift(submission);
+    this.saveDatabase();
     return submission;
   }
 
   updateSubmission(id: string, updates: Partial<ContentSubmission>): ContentSubmission | undefined {
-    const index = this.submissions.findIndex((s) => s.id === id);
+    const index = this.data.submissions.findIndex((s) => s.id === id);
     if (index === -1) return undefined;
 
-    this.submissions[index] = {
-      ...this.submissions[index],
+    this.data.submissions[index] = {
+      ...this.data.submissions[index],
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    return this.submissions[index];
+    this.saveDatabase();
+    return this.data.submissions[index];
   }
 
   addRevision(id: string, content: string, changeSummary: string, authorName: string): ContentSubmission | undefined {
@@ -255,6 +316,7 @@ class BrandGuardRepository {
     submission.revisions = [...(submission.revisions || []), newRev];
     submission.currentText = content;
     submission.updatedAt = new Date().toISOString();
+    this.saveDatabase();
     return submission;
   }
 
@@ -274,6 +336,7 @@ class BrandGuardRepository {
 
     submission.comments = [...(submission.comments || []), newComment];
     submission.updatedAt = new Date().toISOString();
+    this.saveDatabase();
     return submission;
   }
 
@@ -297,16 +360,17 @@ class BrandGuardRepository {
       if (reason) submission.rejectionReason = reason;
     }
 
+    this.saveDatabase();
     return submission;
   }
 
   // --- Governance Analytics Engine ---
   getMetrics(): GovernanceMetrics {
-    const totalSubmissions = this.submissions.length;
-    const approvedCount = this.submissions.filter((s) => s.status === 'approved').length;
-    const pendingCount = this.submissions.filter((s) => s.status === 'submitted' || s.status === 'in_review').length;
-    const changesRequestedCount = this.submissions.filter((s) => s.status === 'changes_requested').length;
-    const rejectedCount = this.submissions.filter((s) => s.status === 'rejected').length;
+    const totalSubmissions = this.data.submissions.length;
+    const approvedCount = this.data.submissions.filter((s) => s.status === 'approved').length;
+    const pendingCount = this.data.submissions.filter((s) => s.status === 'submitted' || s.status === 'in_review').length;
+    const changesRequestedCount = this.data.submissions.filter((s) => s.status === 'changes_requested').length;
+    const rejectedCount = this.data.submissions.filter((s) => s.status === 'rejected').length;
 
     // Calculate real-time categories violated across all reviews
     const categoryCounts: Record<string, number> = {};
@@ -314,7 +378,7 @@ class BrandGuardRepository {
     let totalScore = 0;
     let reviewsWithScores = 0;
 
-    for (const sub of this.submissions) {
+    for (const sub of this.data.submissions) {
       if (sub.latestReview) {
         totalScore += sub.latestReview.compliance_score;
         reviewsWithScores++;
@@ -326,15 +390,13 @@ class BrandGuardRepository {
       }
     }
 
-    const avgComplianceScore = reviewsWithScores > 0 ? Math.round((totalScore / reviewsWithScores) * 10) / 10 : 85;
+    const avgComplianceScore = reviewsWithScores > 0 ? Math.round((totalScore / reviewsWithScores) * 10) / 10 : 86.4;
 
-    // Sort category violations
     const categoryViolations = Object.entries(categoryCounts).map(([category, count]) => ({
       category,
       count,
     })).sort((a, b) => b.count - a.count);
 
-    // If there are few reviews yet, ensure realistic baseline distribution is displayed
     const finalCategoryViolations = categoryViolations.length > 0 ? categoryViolations : DEMO_METRICS.categoryViolations;
 
     return {
@@ -358,19 +420,22 @@ class BrandGuardRepository {
     };
   }
 
-  // --- Reset to Pristine Demo State ---
+  // --- Reset to Pristine State ---
   resetToDemoData(): void {
-    this.organization = { ...DEMO_ORGANIZATION };
-    this.users = [...DEMO_USERS];
-    this.guidelines = [...DEMO_GUIDELINES];
-    this.approvedFacts = [...DEMO_APPROVED_FACTS];
-    this.terminologyRules = [...DEMO_TERMINOLOGY_RULES];
-    this.brandAssets = [...DEMO_BRAND_ASSETS];
-    this.submissions = [...DEMO_SUBMISSIONS];
-    this.currentUser = DEMO_USERS[0];
+    this.data = {
+      organization: { ...DEMO_ORGANIZATION },
+      users: [...DEMO_USERS],
+      guidelines: [...DEMO_GUIDELINES],
+      approvedFacts: [...DEMO_APPROVED_FACTS],
+      terminologyRules: [...DEMO_TERMINOLOGY_RULES],
+      brandAssets: [...DEMO_BRAND_ASSETS],
+      submissions: [...DEMO_SUBMISSIONS],
+      currentUser: DEMO_USERS[0],
+    };
+    this.saveDatabase();
   }
 }
 
-// Global singleton instance
+// Global persistent repository instance
 const globalRepo = new BrandGuardRepository();
 export const repository = globalRepo;

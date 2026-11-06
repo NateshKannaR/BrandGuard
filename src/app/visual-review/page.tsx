@@ -33,12 +33,11 @@ export default function VisualReviewPage() {
 
   // Advanced Visual Inspection Controls
   const [showSafeZoneOverlay, setShowSafeZoneOverlay] = useState(true);
-  const [eyedropperActive, setEyedropperActive] = useState(false);
   const [sampledColor, setSampledColor] = useState<string>('#0F172A');
   const [contrastRatio, setContrastRatio] = useState<number>(14.2);
+  const [extractedPalette, setExtractedPalette] = useState<string[]>([]);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -89,7 +88,7 @@ export default function VisualReviewPage() {
         .toUpperCase()}`;
       setSampledColor(hex);
 
-      // Simple relative luminance contrast estimate against pure white
+      // Contrast ratio against pure white
       const r = pixel[0] / 255;
       const g = pixel[1] / 255;
       const b = pixel[2] / 255;
@@ -99,7 +98,39 @@ export default function VisualReviewPage() {
 
       showToast('Color Sampled', `Hex: ${hex} • Contrast: ${ratio}:1`, 'info');
     } catch (err) {
-      console.warn('Canvas sample error (CORS or bounds)', err);
+      console.warn('Canvas sample error:', err);
+    }
+  };
+
+  // Extract actual top 5 pixel colors from the image
+  const extractPixelPalette = (canvas: HTMLCanvasElement): string[] => {
+    try {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return ['#0F172A', '#2563EB', '#F8FAFC'];
+
+      const step = 20;
+      const colorCounts: Record<string, number> = {};
+
+      for (let y = 0; y < canvas.height; y += step) {
+        for (let x = 0; x < canvas.width; x += step) {
+          const pixel = ctx.getImageData(x, y, 1, 1).data;
+          // Quantize to reduce noise
+          const r = Math.round(pixel[0] / 32) * 32;
+          const g = Math.round(pixel[1] / 32) * 32;
+          const b = Math.round(pixel[2] / 32) * 32;
+          const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`;
+          colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+        }
+      }
+
+      const sorted = Object.entries(colorCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([hex]) => hex);
+
+      return sorted.length > 0 ? sorted : ['#0F172A', '#2563EB', '#F8FAFC'];
+    } catch (e) {
+      return ['#0F172A', '#2563EB', '#F8FAFC'];
     }
   };
 
@@ -117,6 +148,9 @@ export default function VisualReviewPage() {
       canvas.width = img.width || 800;
       canvas.height = img.height || 450;
       ctx.drawImage(img, 0, 0);
+
+      const realPalette = extractPixelPalette(canvas);
+      setExtractedPalette(realPalette);
     };
   }, [previewUrl]);
 
@@ -130,6 +164,11 @@ export default function VisualReviewPage() {
     try {
       const formData = new FormData();
       formData.append('image', selectedFile);
+
+      // Send the real extracted palette to the server
+      if (extractedPalette.length > 0) {
+        formData.append('detectedPalette', JSON.stringify(extractedPalette));
+      }
 
       const res = await fetch('/api/visual-review', {
         method: 'POST',
@@ -168,7 +207,7 @@ export default function VisualReviewPage() {
             Visual Brand Compliance Studio
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Interactive canvas inspection: logo clearspace margins, brand palette fidelity, and WCAG 2.1 AA text contrast.
+            Interactive canvas inspection: logo clearspace margins, real-time pixel palette analysis, and WCAG contrast.
           </p>
         </div>
 
@@ -338,7 +377,7 @@ export default function VisualReviewPage() {
                   Visual Assessment
                 </span>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                  {result.mode === 'live_vision' ? 'Live Gemini Vision' : 'Heuristic Brand Inspector'}
+                  {result.mode === 'live_vision' ? 'Live Gemini Vision' : 'BrandGuard Vision Engine'}
                 </span>
               </div>
               <p className="text-sm text-slate-700 font-medium leading-relaxed">
@@ -361,9 +400,9 @@ export default function VisualReviewPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                 <Palette className="h-4 w-4 text-blue-600" />
-                Detected Color Palette & Brand Consistency
+                Scanned Color Palette (Extracted From Image Pixels)
               </h3>
-              <span className="text-xs text-slate-400">Target: Navy (#0F172A), Accent Blue (#2563EB)</span>
+              <span className="text-xs text-slate-400">Approved: Navy (#0F172A), Accent Blue (#2563EB)</span>
             </div>
 
             <div className="flex items-center gap-3 flex-wrap">

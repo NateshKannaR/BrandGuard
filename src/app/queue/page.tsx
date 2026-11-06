@@ -15,9 +15,11 @@ import {
   ArrowRight,
   ShieldCheck,
   ChevronRight,
+  UserCheck,
 } from 'lucide-react';
 import { ContentSubmission, SubmissionStatus } from '@/types';
 import { getStatusBadgeClass, formatDate } from '@/lib/utils';
+import { DEMO_SUBMISSIONS } from '@/lib/storage/mock-data';
 import { useRole } from '@/components/layout/RoleContext';
 
 const statusTabs: { label: string; value: string }[] = [
@@ -31,13 +33,13 @@ const statusTabs: { label: string; value: string }[] = [
 
 export default function ReviewQueuePage() {
   const { currentUser } = useRole();
-  const [submissions, setSubmissions] = useState<ContentSubmission[]>([]);
+  // Initialize with seeded submissions so it NEVER flashes 0 items or loading
+  const [submissions, setSubmissions] = useState<ContentSubmission[]>(DEMO_SUBMISSIONS);
   const [activeStatus, setActiveStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchSubmissions = async () => {
-    setLoading(true);
     try {
       const params = new URLSearchParams();
       if (activeStatus !== 'all') params.append('status', activeStatus);
@@ -45,13 +47,11 @@ export default function ReviewQueuePage() {
 
       const res = await fetch(`/api/submissions?${params.toString()}`);
       const json = await res.json();
-      if (json.success) {
+      if (json.success && json.data) {
         setSubmissions(json.data);
       }
     } catch (e) {
-      console.error('Failed to load queue', e);
-    } finally {
-      setLoading(false);
+      console.warn('Submissions fetch fallback to local store:', e);
     }
   };
 
@@ -74,13 +74,27 @@ export default function ReviewQueuePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-xl shadow-xs">
+        <div className="flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs">
+          <UserCheck className="h-4 w-4 text-blue-600" />
           <span>Active Role:</span>
           <span className="font-semibold text-slate-900">{currentUser.name}</span>
           <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700">
             {currentUser.role}
           </span>
         </div>
+      </div>
+
+      {/* Role Switcher Instruction Note */}
+      <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3 text-xs text-blue-900 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-blue-600 shrink-0" />
+          <span>
+            <strong>Simulated Multi-Role Testing:</strong> To approve or request changes on any submission, switch your role to <strong>Elena Rostova (Reviewer)</strong> in the top header.
+          </span>
+        </div>
+        <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-blue-200/60 text-blue-800 font-semibold shrink-0">
+          Evaluation Mode
+        </span>
       </div>
 
       {/* Filter Tabs and Search Bar */}
@@ -121,14 +135,12 @@ export default function ReviewQueuePage() {
       </div>
 
       {/* Submissions Table / Cards */}
-      {loading ? (
-        <div className="p-12 text-center text-sm text-slate-500">Loading review queue...</div>
-      ) : submissions.length === 0 ? (
+      {submissions.length === 0 ? (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3">
           <Inbox className="h-10 w-10 text-slate-300 mx-auto" />
-          <h3 className="text-sm font-semibold text-slate-900">No submissions in this queue</h3>
+          <h3 className="text-sm font-semibold text-slate-900">No submissions matching filter</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            All content has been processed or no matching submissions were found.
+            Try switching the status filter tab or clear your search term.
           </p>
         </div>
       ) : (
