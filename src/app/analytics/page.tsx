@@ -141,35 +141,51 @@ export default function AnalyticsPage() {
 
       {/* Top KPI Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="text-xs font-medium text-slate-400">Total Reviews Evaluated</div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-2">{metrics.totalReviews}</div>
-          <div className="text-[11px] text-slate-500 mt-1">Marketing copy & creatives</div>
+        <div className="glass-card rounded-2xl border border-slate-200/80 p-5 shadow-xs relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
+          <div className="text-xs font-semibold text-slate-500">Total Evaluated</div>
+          <div className="text-3xl font-extrabold text-slate-900 mt-2 tracking-tight">{metrics.totalReviews}</div>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1 font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+            Marketing copy & creatives
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="text-xs font-medium text-slate-400">Approved Submissions</div>
-          <div className="text-2xl font-extrabold text-emerald-600 mt-2">{metrics.approvedCount}</div>
-          <div className="text-[11px] text-emerald-700 mt-1">Publication ready</div>
+        <div className="glass-card rounded-2xl border border-slate-200/80 p-5 shadow-xs relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+          <div className="text-xs font-semibold text-slate-500">Approved Submissions</div>
+          <div className="text-3xl font-extrabold text-emerald-600 mt-2 tracking-tight">{metrics.approvedCount}</div>
+          <div className="text-[11px] text-emerald-700 mt-1 flex items-center gap-1 font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+            Publication ready
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="text-xs font-medium text-slate-400">Average Compliance Score</div>
-          <div className="text-2xl font-extrabold text-blue-600 mt-2">{metrics.avgComplianceScore}%</div>
-          <div className="text-[11px] text-slate-500 mt-1">+4.2% benchmark improvement</div>
+        <div className="glass-card rounded-2xl border border-slate-200/80 p-5 shadow-xs relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+          <div className="text-xs font-semibold text-slate-500">Avg Compliance Score</div>
+          <div className="text-3xl font-extrabold text-blue-600 mt-2 tracking-tight">{metrics.avgComplianceScore}%</div>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1 font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500"></span>
+            +4.2% benchmark improvement
+          </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="text-xs font-medium text-slate-400">Correction Adoption Rate</div>
-          <div className="text-2xl font-extrabold text-indigo-600 mt-2">{metrics.correctionAcceptanceRate}%</div>
-          <div className="text-[11px] text-indigo-700 mt-1">AI suggestions accepted</div>
+        <div className="glass-card rounded-2xl border border-slate-200/80 p-5 shadow-xs relative overflow-hidden group">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
+          <div className="text-xs font-semibold text-slate-500">Correction Adoption</div>
+          <div className="text-3xl font-extrabold text-indigo-600 mt-2 tracking-tight">{metrics.correctionAcceptanceRate}%</div>
+          <div className="text-[11px] text-indigo-700 mt-1 flex items-center gap-1 font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+            AI suggestions accepted
+          </div>
         </div>
       </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1: Frequently Violated Categories */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div className="glass-card rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900">Most Frequently Violated Guideline Categories</h3>
             <p className="text-xs text-slate-500">Distribution of flagged issues across brand governance categories</p>
@@ -178,20 +194,34 @@ export default function AnalyticsPage() {
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={metrics.categoryViolations} layout="vertical" margin={{ left: 30, right: 20 }}>
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#3B82F6" />
+                    <stop offset="100%" stopColor="#6366F1" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E2E8F0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis dataKey="category" type="category" tick={{ fontSize: 11 }} width={110} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: '#64748B' }} />
+                <YAxis dataKey="category" type="category" tick={{ fontSize: 11, fill: '#334155' }} width={110} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0F172A', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#fff',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+                  }}
                 />
-                <Bar dataKey="count" fill="#2563EB" radius={[0, 4, 4, 0]} name="Violations Found" />
+                <Bar dataKey="count" fill="url(#barGradient)" radius={[0, 6, 6, 0]} name="Violations Found" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Chart 2: Issue Severity Distribution */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div className="glass-card rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900">Issue Severity Breakdown</h3>
             <p className="text-xs text-slate-500">Proportion of High, Medium, and Low risk brand issues</p>
@@ -206,7 +236,7 @@ export default function AnalyticsPage() {
                   cy="50%"
                   innerRadius={55}
                   outerRadius={85}
-                  paddingAngle={4}
+                  paddingAngle={5}
                   dataKey="count"
                   nameKey="severity"
                 >
@@ -218,7 +248,15 @@ export default function AnalyticsPage() {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0F172A', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#fff',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -226,19 +264,19 @@ export default function AnalyticsPage() {
 
           <div className="flex items-center justify-center gap-6 text-xs">
             {metrics.severityDistribution.map((s) => (
-              <div key={s.severity} className="flex items-center gap-1.5 font-medium">
+              <div key={s.severity} className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-lg bg-slate-100/70 border border-slate-200/50">
                 <span
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: SEVERITY_COLORS[s.severity] }}
                 />
-                <span>{s.severity}: <strong>{s.count}</strong></span>
+                <span>{s.severity}: <strong className="text-slate-900">{s.count}</strong></span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Chart 3: Review Activity & Approval Throughput */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div className="lg:col-span-2 glass-card rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
           <div>
             <h3 className="text-sm font-bold text-slate-900">Review Activity & Approval Velocity (7-Day Trend)</h3>
             <p className="text-xs text-slate-500">Submissions evaluated vs approved for publication</p>
@@ -250,21 +288,29 @@ export default function AnalyticsPage() {
                 <defs>
                   <linearGradient id="colorReviews" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#2563EB" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
+                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="colorApprovals" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10B981" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#64748B' }} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0F172A', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#fff',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
+                  }}
                 />
-                <Area type="monotone" dataKey="reviews" stroke="#2563EB" fillOpacity={1} fill="url(#colorReviews)" name="Reviews" />
-                <Area type="monotone" dataKey="approvals" stroke="#10B981" fillOpacity={1} fill="url(#colorApprovals)" name="Approved" />
+                <Area type="monotone" dataKey="reviews" stroke="#2563EB" strokeWidth={2} fillOpacity={1} fill="url(#colorReviews)" name="Reviews" />
+                <Area type="monotone" dataKey="approvals" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorApprovals)" name="Approved" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -272,7 +318,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Recurring Mistakes & Brand Coaching */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+      <div className="glass-card rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -294,10 +340,18 @@ export default function AnalyticsPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {metrics.recurringMistakes.map((item, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/60">
-                  <td className="py-3.5 font-mono text-slate-900 font-bold">{item.termOrPhrase}</td>
-                  <td className="py-3.5 text-center font-bold text-blue-700">{item.occurrences}</td>
-                  <td className="py-3.5 text-slate-600 leading-relaxed">{item.recommendation}</td>
+                <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5">
+                    <span className="font-mono text-slate-900 font-bold bg-slate-100/80 px-2 py-1 rounded-md border border-slate-200/60 text-[11px]">
+                      {item.termOrPhrase}
+                    </span>
+                  </td>
+                  <td className="py-3.5 text-center">
+                    <span className="font-extrabold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
+                      {item.occurrences}x
+                    </span>
+                  </td>
+                  <td className="py-3.5 text-slate-700 font-medium leading-relaxed">{item.recommendation}</td>
                 </tr>
               ))}
             </tbody>

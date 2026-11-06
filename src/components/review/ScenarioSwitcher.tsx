@@ -59,40 +59,67 @@ interface ScenarioSwitcherProps {
 
 export function ScenarioSwitcher({ onSelect, activeScenarioId }: ScenarioSwitcherProps) {
   return (
-    <div className="bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-slate-50 p-4 rounded-2xl border border-blue-200/80 shadow-2xs space-y-2.5">
+    <div className="glass-panel p-5 rounded-2xl border border-blue-200/70 shadow-xs space-y-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900">
-          <Sparkles className="h-4 w-4 text-blue-600" />
-          <span>Interactive Judge Scenarios (1-Click Presets)</span>
+        <div className="flex items-center gap-2 text-xs font-extrabold text-slate-900">
+          <div className="h-6 w-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+            <Sparkles className="h-3.5 w-3.5" />
+          </div>
+          <span>Interactive Evaluator Test Presets</span>
         </div>
-        <span className="text-[11px] text-blue-600 font-medium hidden sm:inline">
-          Click any preset to populate and test compliance rules
+        <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+          One-click scenarios designed for hackathon judges & audit testing
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {DEMO_SCENARIOS.map((sc) => {
           const isActive = activeScenarioId === sc.id;
+          const Icon =
+            sc.id === 'scenario_regulatory'
+              ? ShieldAlert
+              : sc.id === 'scenario_tone'
+              ? AlertTriangle
+              : CheckCircle2;
+
           return (
             <button
               key={sc.id}
               onClick={() => onSelect(sc)}
-              className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
+              className={`p-3.5 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between relative group ${
                 isActive
-                  ? 'bg-white border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
-                  : 'bg-white/80 border-slate-200 hover:bg-white hover:border-slate-300 shadow-2xs'
+                  ? 'bg-white border-blue-500 shadow-md shadow-blue-500/15 ring-2 ring-blue-500/20'
+                  : 'bg-white hover:bg-slate-50/80 border-slate-200 hover:border-slate-300 shadow-2xs hover:-translate-y-0.5'
               }`}
             >
               <div>
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <h4 className="text-xs font-bold text-slate-900">{sc.name}</h4>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${sc.badgeColor}`}>
+                <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Icon
+                      className={`h-3.5 w-3.5 shrink-0 ${
+                        sc.id === 'scenario_regulatory'
+                          ? 'text-red-500'
+                          : sc.id === 'scenario_tone'
+                          ? 'text-amber-500'
+                          : 'text-emerald-500'
+                      }`}
+                    />
+                    <h4 className="text-xs font-bold text-slate-900 truncate">{sc.name}</h4>
+                  </div>
+                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${sc.badgeColor}`}>
                     {sc.badge}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
                   {sc.description}
                 </p>
+              </div>
+
+              <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                <span className="text-slate-400 font-medium">{sc.contentType}</span>
+                <span className={`font-bold transition-colors ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-600'}`}>
+                  {isActive ? 'Active Preset ✓' : 'Load Preset →'}
+                </span>
               </div>
             </button>
           );

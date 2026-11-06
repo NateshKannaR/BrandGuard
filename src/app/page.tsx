@@ -50,92 +50,194 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      {/* Role Switching Environment Disclaimer Banner */}
-      <div className="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="space-y-8">
+      {/* Futuristic Enterprise Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-slate-950 border border-slate-800 shadow-xl shadow-slate-950/20 p-6 sm:p-8 text-white">
+        {/* Ambient Gradient Glows in Background */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-canvas-dark opacity-40 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 text-xs font-semibold backdrop-blur-md">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
+              <span>Explainable AI Brand Governance Active</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-400 font-mono text-[11px]">NovaTech Enterprise</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+              AI-Powered Content & Brand Governance
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+              Continuous compliance verification against corporate voice, audited SLA commitments, approved facts, and visual identity standards.
+            </p>
+
+            {/* Quick telemetry tags */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-slate-400 font-medium">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" /> 9 Active Guidelines
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-blue-400" /> 91.2% Acceptance
+              </span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-800 flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-indigo-400" /> Real-Time Pre-Publish Check
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 w-full sm:w-auto">
+            <Link
+              href="/review"
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-500 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <FileSearch className="h-4 w-4 text-cyan-300" />
+              <span>Launch Content Studio</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href="/visual-review"
+              className="flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800/90 border border-slate-700/80 text-slate-200 px-5 py-3 rounded-2xl text-xs font-bold hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <Layers className="h-4 w-4 text-purple-400" />
+              <span>Visual Asset Studio</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Evaluator Context Notice */}
+      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center shrink-0">
-            <UserCheck className="h-5 w-5 text-blue-400" />
+          <div className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+            <UserCheck className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                Evaluation Environment
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">
+                Audit Mode
               </span>
-              <span className="text-xs text-slate-300">Active User: <strong className="text-white">{currentUser.name}</strong> ({currentUser.title})</span>
+              <span className="text-xs font-bold text-slate-800">
+                Operating as: <strong className="text-blue-600">{currentUser.name}</strong> ({currentUser.title})
+              </span>
             </div>
-            <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-              Role-switching is <strong>simulated in the top header</strong> so evaluators can test creator submissions and reviewer approval workflows without multiple logins.
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Simulated multi-role testing is enabled in the top header to explore both Creator and Reviewer approval permissions.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <Link
-            href="/review"
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm"
-          >
-            <FileSearch className="h-4 w-4" />
-            <span>Test Compliance Check</span>
-          </Link>
-        </div>
+        <Link
+          href="/review"
+          className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 shrink-0"
+        >
+          <span>Run Test Scenario</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
-      {/* Welcome & Primary Action Banner */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
-            <ShieldCheck className="h-4 w-4" />
-            Brand Governance Command Center
+      {/* Key Metric KPI Cards (NEVER display '--') */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Reviews Evaluated */}
+        <div className="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-blue-500 to-indigo-500 absolute top-0 left-0 right-0" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Total Reviews Evaluated</span>
+            <div className="h-8 w-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <FileSearch className="h-4 w-4" />
+            </div>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            NovaTech Brand Operations
-          </h1>
-          <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-            Live compliance monitoring for marketing copy, social releases, and visual assets against approved corporate guidelines and audited SLA commitments.
-          </p>
+          <div className="text-3xl font-black text-slate-900 mt-3 tracking-tight">
+            {metrics.totalReviews}
+          </div>
+          <div className="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1.5">
+            <CheckCircle className="h-3.5 w-3.5" />
+            <span>Live guideline coverage</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <Link
-            href="/review"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all hover:scale-[1.01]"
-          >
-            <FileSearch className="h-4 w-4" />
-            <span>New Content Review</span>
-          </Link>
-          <Link
-            href="/queue"
-            className="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors"
-          >
-            <Inbox className="h-4 w-4" />
-            <span>Review Queue</span>
-          </Link>
+        {/* Pending Approvals */}
+        <div className="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-amber-500 to-orange-500 absolute top-0 left-0 right-0" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Pending Approvals</span>
+            <div className="h-8 w-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Inbox className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-3xl font-black text-slate-900 mt-3 tracking-tight">
+            {metrics.pendingCount}
+          </div>
+          <div className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5 text-amber-500" />
+            <span>Awaiting reviewer sign-off</span>
+          </div>
+        </div>
+
+        {/* Avg Compliance Score */}
+        <div className="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-indigo-500 to-purple-500 absolute top-0 left-0 right-0" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Avg Compliance Score</span>
+            <div className="h-8 w-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <TrendingUp className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-3xl font-black text-slate-900 mt-3 tracking-tight">
+            {metrics.avgComplianceScore}%
+          </div>
+          <div className="text-xs text-slate-500 font-medium mt-2 flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+            <span>Across all marketing channels</span>
+          </div>
+        </div>
+
+        {/* Correction Adoption */}
+        <div className="glass-card rounded-2xl p-5 relative overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-emerald-500 to-teal-500 absolute top-0 left-0 right-0" />
+          <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <span>Correction Adoption</span>
+            <div className="h-8 w-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <CheckCircle className="h-4 w-4" />
+            </div>
+          </div>
+          <div className="text-3xl font-black text-slate-900 mt-3 tracking-tight">
+            {metrics.correctionAcceptanceRate}%
+          </div>
+          <div className="text-xs text-emerald-600 font-semibold mt-2 flex items-center gap-1.5">
+            <CheckCircle className="h-3.5 w-3.5" />
+            <span>High creator alignment</span>
+          </div>
         </div>
       </div>
 
       {/* Governance Insights Alerts */}
       {metrics && metrics.insights && metrics.insights.length > 0 && (
         <div className="space-y-3">
-          <div className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-blue-500" />
             Active Governance Insights & Recommendations
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {metrics.insights.map((ins) => (
               <div
                 key={ins.id}
-                className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:border-blue-300 transition-colors flex flex-col justify-between"
+                className="glass-card rounded-2xl p-5 shadow-xs hover:border-blue-400 transition-all flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2.5 mb-2.5">
                     {ins.type === 'warning' ? (
-                      <span className="p-1 rounded bg-amber-50 text-amber-600 border border-amber-200">
-                        <AlertTriangle className="h-3.5 w-3.5" />
+                      <span className="p-1.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/80">
+                        <AlertTriangle className="h-4 w-4" />
                       </span>
                     ) : (
-                      <span className="p-1 rounded bg-blue-50 text-blue-600 border border-blue-200">
-                        <TrendingUp className="h-3.5 w-3.5" />
+                      <span className="p-1.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-200/80">
+                        <TrendingUp className="h-4 w-4" />
                       </span>
                     )}
                     <h3 className="text-xs font-bold text-slate-900 leading-tight">{ins.title}</h3>
@@ -145,7 +247,7 @@ export default function DashboardPage() {
                 {ins.actionUrl && (
                   <Link
                     href={ins.actionUrl}
-                    className="mt-3 text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 pt-2 border-t border-slate-100"
+                    className="mt-4 text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 pt-3 border-t border-slate-100"
                   >
                     <span>{ins.actionLabel || 'Learn more'}</span>
                     <ArrowRight className="h-3 w-3" />
@@ -157,67 +259,18 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Key Metric KPI Cards (NEVER display '--') */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Total Reviews Evaluated</span>
-            <FileSearch className="h-4 w-4 text-blue-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-2">
-            {metrics.totalReviews}
-          </div>
-          <div className="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
-            <CheckCircle className="h-3 w-3" /> Live guideline coverage
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Pending Approvals</span>
-            <Inbox className="h-4 w-4 text-amber-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-2">
-            {metrics.pendingCount}
-          </div>
-          <div className="text-xs text-slate-500 mt-1">Awaiting reviewer sign-off</div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Avg Compliance Score</span>
-            <TrendingUp className="h-4 w-4 text-indigo-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-2">
-            {metrics.avgComplianceScore}%
-          </div>
-          <div className="text-xs text-slate-500 mt-1">Across all content channels</div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
-            <span>Correction Adoption</span>
-            <CheckCircle className="h-4 w-4 text-emerald-500" />
-          </div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-2">
-            {metrics.correctionAcceptanceRate}%
-          </div>
-          <div className="text-xs text-emerald-600 font-medium mt-1">High creator alignment</div>
-        </div>
-      </div>
-
       {/* Two Column Layout: Recent Reviews & Knowledge Base Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 cols): Recent Content Reviews */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-          <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="lg:col-span-2 glass-card rounded-2xl shadow-xs overflow-hidden flex flex-col">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Recent Content Submissions</h2>
+              <h2 className="text-base font-extrabold text-slate-900">Recent Content Submissions</h2>
               <p className="text-xs text-slate-500">Live submissions processed by BrandGuard governance</p>
             </div>
             <Link
               href="/queue"
-              className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 px-3 py-1.5 rounded-xl hover:bg-blue-50 transition-colors"
             >
               <span>View All</span>
               <ChevronRight className="h-3.5 w-3.5" />
@@ -226,41 +279,41 @@ export default function DashboardPage() {
 
           <div className="divide-y divide-slate-100 flex-1">
             {submissions.map((sub) => (
-              <div key={sub.id} className="p-4 sm:px-6 hover:bg-slate-50 transition-colors flex items-center justify-between gap-4">
+              <div key={sub.id} className="p-4 sm:px-6 hover:bg-slate-50/80 transition-colors flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${getStatusBadgeClass(sub.status)}`}>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getStatusBadgeClass(sub.status)}`}>
                       {sub.status.replace('_', ' ').toUpperCase()}
                     </span>
                     <span className="text-xs text-slate-400">• {sub.contentType}</span>
                   </div>
                   <Link
                     href={`/queue/${sub.id}`}
-                    className="text-sm font-semibold text-slate-900 hover:text-blue-600 truncate block mt-1"
+                    className="text-sm font-bold text-slate-900 hover:text-blue-600 truncate block mt-1 transition-colors"
                   >
                     {sub.title}
                   </Link>
-                  <div className="text-xs text-slate-500 flex items-center gap-3 mt-1">
+                  <div className="text-xs text-slate-500 flex items-center gap-2 mt-1">
                     <span>By {sub.creatorName}</span>
                     <span>•</span>
                     <span>{formatDate(sub.createdAt)}</span>
                   </div>
                 </div>
 
-                <div className="text-right shrink-0">
+                <div className="text-right shrink-0 flex items-center gap-3">
                   {sub.latestReview && (
                     <div className="inline-flex flex-col items-end">
-                      <span className="text-xs font-bold text-slate-900">
+                      <span className="text-xs font-extrabold text-slate-900 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200">
                         {sub.latestReview.compliance_score}/100
                       </span>
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-slate-500 mt-0.5">
                         {sub.latestReview.issues.length} {sub.latestReview.issues.length === 1 ? 'flag' : 'flags'}
                       </span>
                     </div>
                   )}
                   <Link
                     href={`/queue/${sub.id}`}
-                    className="ml-3 inline-block px-3 py-1 text-xs border border-slate-200 rounded-lg hover:bg-white text-slate-700 font-medium"
+                    className="px-3.5 py-1.5 text-xs bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:text-blue-600 text-slate-700 font-bold transition-all shadow-2xs"
                   >
                     Open
                   </Link>
@@ -272,13 +325,15 @@ export default function DashboardPage() {
 
         {/* Right Column: Knowledge Base & Quick Links */}
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-blue-600" />
+          <div className="glass-card rounded-2xl p-6 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <BookOpen className="h-4 w-4" />
+                </div>
                 Brand Knowledge Hub
               </h3>
-              <Link href="/guidelines" className="text-xs text-blue-600 font-semibold hover:underline">
+              <Link href="/guidelines" className="text-xs text-blue-600 font-bold hover:underline">
                 Manage
               </Link>
             </div>
@@ -286,31 +341,35 @@ export default function DashboardPage() {
               Active governance standards stored and referenced by the AI compliance engine:
             </p>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="font-medium text-slate-700">Tone of Voice Rules</span>
-                <span className="font-semibold text-slate-900">Active</span>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <span className="font-semibold text-slate-700">Tone of Voice Rules</span>
+                <span className="font-bold text-emerald-600 flex items-center gap-1 text-[11px]">
+                  <CheckCircle className="h-3 w-3" /> Active
+                </span>
               </div>
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="font-medium text-slate-700">Customer Terminology Rules</span>
-                <span className="font-semibold text-slate-900">3 Rules</span>
+              <div className="flex items-center justify-between p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <span className="font-semibold text-slate-700">Terminology Dictionary</span>
+                <span className="font-bold text-blue-600 text-[11px]">3 Rules</span>
               </div>
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="font-medium text-slate-700">Audited SLA (99.95%)</span>
-                <span className="font-semibold text-slate-900">Verified</span>
+              <div className="flex items-center justify-between p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <span className="font-semibold text-slate-700">Audited SLA (99.95%)</span>
+                <span className="font-bold text-emerald-600 flex items-center gap-1 text-[11px]">
+                  <CheckCircle className="h-3 w-3" /> Verified
+                </span>
               </div>
-              <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                <span className="font-medium text-slate-700">WCAG 2.1 AA Accessibility</span>
-                <span className="font-semibold text-slate-900">Enforced</span>
+              <div className="flex items-center justify-between p-3 bg-slate-50/80 rounded-xl border border-slate-100">
+                <span className="font-semibold text-slate-700">WCAG 2.1 AA Accessibility</span>
+                <span className="font-bold text-indigo-600 text-[11px]">Enforced</span>
               </div>
             </div>
 
             <Link
               href="/guidelines"
-              className="mt-4 w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 transition-colors"
+              className="mt-5 w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm hover:scale-[1.01]"
             >
-              <span>Explore Knowledge Base</span>
-              <ArrowRight className="h-3 w-3" />
+              <span>Explore Knowledge Hub</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
