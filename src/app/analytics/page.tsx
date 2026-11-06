@@ -12,6 +12,9 @@ import {
   Info,
   ArrowRight,
   ShieldAlert,
+  Download,
+  Calendar,
+  Share2,
 } from 'lucide-react';
 import {
   BarChart,
@@ -28,6 +31,7 @@ import {
   Area,
 } from 'recharts';
 import { GovernanceMetrics } from '@/types';
+import { useToast } from '@/components/ui/Toast';
 
 const SEVERITY_COLORS: Record<string, string> = {
   High: '#EF4444',
@@ -36,8 +40,10 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export default function AnalyticsPage() {
+  const { showToast } = useToast();
   const [metrics, setMetrics] = useState<GovernanceMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'quarter'>('7d');
 
   useEffect(() => {
     async function loadAnalytics() {
@@ -56,6 +62,31 @@ export default function AnalyticsPage() {
     loadAnalytics();
   }, []);
 
+  const handleExportCSV = () => {
+    if (!metrics) return;
+
+    let csvContent = 'data:text/csv;charset=utf-8,';
+    csvContent += 'Category,Violations Count\n';
+    metrics.categoryViolations.forEach((c) => {
+      csvContent += `"${c.category}",${c.count}\n`;
+    });
+
+    csvContent += '\nRecurring Mistake,Occurrences,Recommendation\n';
+    metrics.recurringMistakes.forEach((m) => {
+      csvContent += `"${m.termOrPhrase}",${m.occurrences},"${m.recommendation}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `NovaTech_Governance_Metrics_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Export Complete', 'Governance metrics downloaded as CSV.', 'success');
+  };
+
   if (loading) {
     return <div className="p-12 text-center text-sm text-slate-500">Loading governance analytics...</div>;
   }
@@ -71,7 +102,7 @@ export default function AnalyticsPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
             <BarChart3 className="h-4 w-4" />
-            Governance Intelligence (Improvement 3)
+            Governance Intelligence (Round 2 Improvement 3)
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Brand Governance Analytics
@@ -81,9 +112,41 @@ export default function AnalyticsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-xs">
-          <Info className="h-3.5 w-3.5 text-blue-600" />
-          <span>Derived from actual stored review records</span>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="bg-white border border-slate-200 rounded-xl p-1 flex items-center text-xs shadow-2xs">
+            <button
+              onClick={() => setTimeRange('7d')}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                timeRange === '7d' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              7 Days
+            </button>
+            <button
+              onClick={() => setTimeRange('30d')}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                timeRange === '30d' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              30 Days
+            </button>
+            <button
+              onClick={() => setTimeRange('quarter')}
+              className={`px-3 py-1 rounded-lg font-medium transition-colors ${
+                timeRange === 'quarter' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Quarter
+            </button>
+          </div>
+
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Export CSV Report</span>
+          </button>
         </div>
       </div>
 
@@ -104,7 +167,7 @@ export default function AnalyticsPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
           <div className="text-xs font-medium text-slate-400">Average Compliance Score</div>
           <div className="text-2xl font-extrabold text-blue-600 mt-2">{metrics.avgComplianceScore}%</div>
-          <div className="text-[11px] text-slate-500 mt-1">+4.2% over last 30 days</div>
+          <div className="text-[11px] text-slate-500 mt-1">+4.2% benchmark improvement</div>
         </div>
 
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">

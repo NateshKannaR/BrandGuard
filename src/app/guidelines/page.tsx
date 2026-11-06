@@ -17,10 +17,15 @@ import {
   ShieldAlert,
   AlertCircle,
   FileUp,
+  Sparkles,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { BrandGuideline, GuidelineCategory } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { useRole } from '@/components/layout/RoleContext';
+import { useToast } from '@/components/ui/Toast';
+import { RuleExtractorModal } from '@/components/guidelines/RuleExtractorModal';
 
 const categories: (GuidelineCategory | 'All')[] = [
   'All',
@@ -35,13 +40,17 @@ const categories: (GuidelineCategory | 'All')[] = [
 
 export default function GuidelinesPage() {
   const { currentUser } = useRole();
+  const { showToast } = useToast();
+
   const [guidelines, setGuidelines] = useState<BrandGuideline[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Modal state
+  // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExtractorOpen, setIsExtractorOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [activeGuideline, setActiveGuideline] = useState<BrandGuideline | null>(null);
 
@@ -112,17 +121,25 @@ export default function GuidelinesPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete the guideline "${title}"? This cannot be undone.`)) {
+    if (confirm(`Delete "${title}"?`)) {
       try {
         const res = await fetch(`/api/guidelines/${id}`, { method: 'DELETE' });
         const json = await res.json();
         if (json.success) {
+          showToast('Guideline Deleted', `Removed "${title}"`, 'info');
           fetchGuidelines();
         }
       } catch (err) {
-        console.error('Failed to delete guideline', err);
+        console.error('Delete error', err);
       }
     }
+  };
+
+  const handleCopyRule = (id: string, rule: string) => {
+    navigator.clipboard.writeText(rule);
+    setCopiedId(id);
+    showToast('Copied to clipboard', 'Rule text ready to paste', 'success');
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -143,6 +160,7 @@ export default function GuidelinesPage() {
         const json = await res.json();
         if (json.success) {
           setIsModalOpen(false);
+          showToast('Guideline Created', formData.title, 'success');
           fetchGuidelines();
         }
       } else if (modalMode === 'edit' && activeGuideline) {
@@ -154,6 +172,7 @@ export default function GuidelinesPage() {
         const json = await res.json();
         if (json.success) {
           setIsModalOpen(false);
+          showToast('Guideline Updated', formData.title, 'success');
           fetchGuidelines();
         }
       }
@@ -164,7 +183,6 @@ export default function GuidelinesPage() {
     }
   };
 
-  // Mock Document text extractor for knowledge upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -192,19 +210,28 @@ export default function GuidelinesPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreate}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-sm transition-colors self-start sm:self-auto"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Brand Guideline</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setIsExtractorOpen(true)}
+            className="flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-200 text-indigo-700 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors shadow-2xs"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+            <span>AI Auto-Extract Rules</span>
+          </button>
+
+          <button
+            onClick={handleOpenCreate}
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xs transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Brand Guideline</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-          {/* Search Input */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
@@ -229,7 +256,7 @@ export default function GuidelinesPage() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                 selectedCategory === cat
-                  ? 'bg-slate-900 text-white'
+                  ? 'bg-slate-900 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -247,7 +274,7 @@ export default function GuidelinesPage() {
           <FileText className="h-10 w-10 text-slate-300 mx-auto" />
           <h3 className="text-sm font-semibold text-slate-900">No guidelines found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Try adjusting your search query or filter, or create a new guideline to enforce brand standards.
+            Try adjusting your search query or filter, or click &ldquo;AI Auto-Extract Rules&rdquo; to populate from a document.
           </p>
         </div>
       ) : (
@@ -271,6 +298,17 @@ export default function GuidelinesPage() {
                   </div>
 
                   <div className="flex items-center gap-1 text-slate-400">
+                    <button
+                      onClick={() => handleCopyRule(guide.id, guide.rule)}
+                      className="p-1.5 hover:text-slate-800 hover:bg-slate-100 rounded"
+                      title="Copy rule statement"
+                    >
+                      {copiedId === guide.id ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
+                    </button>
                     <button
                       onClick={() => handleOpenEdit(guide)}
                       className="p-1.5 hover:text-blue-600 hover:bg-slate-100 rounded"
@@ -323,6 +361,13 @@ export default function GuidelinesPage() {
           ))}
         </div>
       )}
+
+      {/* AI Rule Extractor Modal */}
+      <RuleExtractorModal
+        isOpen={isExtractorOpen}
+        onClose={() => setIsExtractorOpen(false)}
+        onImported={fetchGuidelines}
+      />
 
       {/* Create / Edit Modal Dialog */}
       {isModalOpen && (

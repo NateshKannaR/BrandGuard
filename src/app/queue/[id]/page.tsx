@@ -17,18 +17,26 @@ import {
   Check,
   RotateCcw,
   ShieldCheck,
+  Award,
+  Copy,
+  Printer,
+  Sparkles,
 } from 'lucide-react';
 import { ContentSubmission, SubmissionStatus } from '@/types';
 import { getStatusBadgeClass, formatDate, formatDateTime, getSeverityBadgeClass } from '@/lib/utils';
 import { useRole } from '@/components/layout/RoleContext';
+import { useToast } from '@/components/ui/Toast';
+import { ComplianceCertificate } from '@/components/queue/ComplianceCertificate';
 
 export default function SubmissionDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { currentUser } = useRole();
+  const { showToast } = useToast();
 
   const [submission, setSubmission] = useState<ContentSubmission | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'content' | 'revisions' | 'comments'>('content');
+  const [isCertOpen, setIsCertOpen] = useState(false);
 
   // Reviewer actions modal state
   const [actionType, setActionType] = useState<'approve' | 'request_changes' | 'reject' | null>(null);
@@ -78,10 +86,19 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
       if (json.success) {
         setActionType(null);
         setActionNote('');
+        showToast(
+          status === 'approved' ? 'Content Approved for Publication' : `Status changed to ${status}`,
+          `By ${currentUser.name}`,
+          status === 'approved' ? 'success' : 'info'
+        );
         fetchSubmission();
+        if (status === 'approved') {
+          setIsCertOpen(true);
+        }
       }
     } catch (e) {
       console.error('Status change failed', e);
+      showToast('Action Failed', 'Could not transition status', 'error');
     } finally {
       setIsProcessingAction(false);
     }
@@ -104,10 +121,12 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
       const json = await res.json();
       if (json.success) {
         setNewComment('');
+        showToast('Comment Added', 'Appended to audit trail', 'success');
         fetchSubmission();
       }
     } catch (e) {
       console.error('Failed to post comment', e);
+      showToast('Comment Error', 'Failed to save comment', 'error');
     } finally {
       setIsSubmittingComment(false);
     }
@@ -128,10 +147,12 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
       const json = await res.json();
       if (json.success) {
         setIsEditingContent(false);
+        showToast('Revision Recorded', 'Saved new content draft', 'success');
         fetchSubmission();
       }
     } catch (e) {
       console.error('Failed to save revision', e);
+      showToast('Revision Error', 'Failed to update content', 'error');
     }
   };
 
@@ -153,6 +174,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
   }
 
   const isReviewerOrAdmin = currentUser.role === 'reviewer' || currentUser.role === 'admin';
+  const isApproved = submission.status === 'approved';
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -187,6 +209,16 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
 
           {/* Action Toolbar */}
           <div className="flex items-center gap-2 flex-wrap">
+            {isApproved && (
+              <button
+                onClick={() => setIsCertOpen(true)}
+                className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+              >
+                <Award className="h-4 w-4 text-indigo-600" />
+                <span>View Compliance Certificate</span>
+              </button>
+            )}
+
             {isReviewerOrAdmin ? (
               <>
                 <button
@@ -405,7 +437,6 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
           <h3 className="text-sm font-bold text-slate-900">Review Comments & Clarifications</h3>
 
-          {/* Existing comments */}
           <div className="space-y-3">
             {submission.comments?.length === 0 ? (
               <p className="text-xs text-slate-400 italic">No comments yet.</p>
@@ -427,7 +458,6 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
             )}
           </div>
 
-          {/* New Comment Input */}
           <form onSubmit={handleAddComment} className="space-y-3 pt-3 border-t border-slate-100">
             <textarea
               rows={3}
@@ -450,7 +480,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
         </div>
       )}
 
-      {/* Reviewer Action Modal (Approve, Request Changes, Reject) */}
+      {/* Reviewer Action Modal */}
       {actionType && (
         <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -473,7 +503,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
             <div className="text-xs text-slate-600 space-y-3">
               <p>
                 {actionType === 'approve'
-                  ? 'As brand compliance officer, confirm that this marketing copy aligns with official guidelines and approved facts. This will mark the asset as Approved for Publication.'
+                  ? 'As brand compliance officer, confirm that this marketing copy aligns with official guidelines and approved facts. This will issue an official Brand Compliance Certificate.'
                   : actionType === 'request_changes'
                   ? 'Specify what modifications the creator must make prior to receiving publication approval.'
                   : 'State the formal justification for rejecting this submission.'}
@@ -528,6 +558,13 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
           </div>
         </div>
       )}
+
+      {/* Compliance Certificate Modal */}
+      <ComplianceCertificate
+        submission={submission}
+        isOpen={isCertOpen}
+        onClose={() => setIsCertOpen(false)}
+      />
     </div>
   );
 }

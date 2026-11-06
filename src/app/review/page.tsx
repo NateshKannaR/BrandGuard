@@ -17,11 +17,16 @@ import {
   Check,
   ChevronRight,
   Info,
+  Clock,
+  Eye,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { ContentType, GuidelineCategory, ReviewResult, ReviewIssue } from '@/types';
 import { DiffEditor } from '@/components/review/DiffEditor';
 import { EvidenceCard } from '@/components/review/EvidenceCard';
+import { ScenarioSwitcher, DemoScenario } from '@/components/review/ScenarioSwitcher';
 import { useRole } from '@/components/layout/RoleContext';
+import { useToast } from '@/components/ui/Toast';
 
 const contentTypes: ContentType[] = [
   'Social media post',
@@ -41,12 +46,10 @@ const availableCategories: GuidelineCategory[] = [
   'Accessibility',
 ];
 
-const SAMPLE_VIOLATION_COPY =
-  "NovaTech is the undisputed #1 cloud platform in the world! Over 10,000 users agree our cheap pricing delivers 100% uptime with zero crashes ever. Check out our crazy fast tool now and join thousands of users making the switch today!!!";
-
 export default function ContentReviewPage() {
   const router = useRouter();
   const { currentUser } = useRole();
+  const { showToast } = useToast();
 
   // Submission Form State
   const [title, setTitle] = useState('');
@@ -59,6 +62,7 @@ export default function ContentReviewPage() {
     'Approved Facts',
     'Promotional Claims',
   ]);
+  const [activeScenarioId, setActiveScenarioId] = useState<string | undefined>();
 
   // Review & Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -80,12 +84,16 @@ export default function ContentReviewPage() {
     }
   };
 
-  const handleLoadSample = () => {
-    setTitle('Q1 Enterprise Cloud Launch Announcement');
-    setContentType('Social media post');
-    setRawText(SAMPLE_VIOLATION_COPY);
-    setCurrentText(SAMPLE_VIOLATION_COPY);
+  const handleSelectScenario = (scenario: DemoScenario) => {
+    setActiveScenarioId(scenario.id);
+    setTitle(scenario.title);
+    setContentType(scenario.contentType);
+    setSelectedCategories(scenario.categories);
+    setRawText(scenario.text);
+    setCurrentText(scenario.text);
     setUploadNotice('');
+    setReviewResult(null);
+    showToast('Loaded Scenario', `"${scenario.name}" preset applied.`, 'info');
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +102,6 @@ export default function ContentReviewPage() {
 
     setUploadNotice(`Processing ${file.name}...`);
     try {
-      // For text-based files, read content directly
       const text = await file.text();
       setRawText(text);
       setCurrentText(text);
@@ -102,9 +109,11 @@ export default function ContentReviewPage() {
         setTitle(file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '));
       }
       setUploadNotice(`Loaded ${file.name} (${file.size} bytes)`);
+      showToast('Document Loaded', file.name, 'success');
     } catch (err) {
       console.error('File load error', err);
       setUploadNotice('Failed to read file.');
+      showToast('Upload Error', 'Failed to read document file', 'error');
     }
   };
 
@@ -130,11 +139,17 @@ export default function ContentReviewPage() {
       const json = await res.json();
       if (json.success) {
         setReviewResult(json.data);
+        showToast(
+          'Compliance Evaluation Complete',
+          `Score: ${json.data.compliance_score}/100 • ${json.data.issues.length} flags found`,
+          json.data.issues.length === 0 ? 'success' : 'warning'
+        );
       } else {
         alert(`Analysis error: ${json.error}`);
       }
     } catch (err) {
       console.error('Compliance review error', err);
+      showToast('Evaluation Error', 'Failed to run review engine', 'error');
     } finally {
       setIsAnalyzing(false);
     }
@@ -153,13 +168,13 @@ export default function ContentReviewPage() {
 
     setCurrentText(updatedText);
 
-    // Update issue status
     setReviewResult({
       ...reviewResult,
       issues: reviewResult.issues.map((i) =>
         i.id === issueId ? { ...i, status: 'accepted' } : i
       ),
     });
+    showToast('Correction Accepted', `Updated to "${replacement}"`, 'success');
   };
 
   const handleRejectCorrection = (issueId: string) => {
@@ -170,6 +185,7 @@ export default function ContentReviewPage() {
         i.id === issueId ? { ...i, status: 'rejected' } : i
       ),
     });
+    showToast('Correction Dismissed', 'Retained original copy', 'info');
   };
 
   const handleEditCorrection = (issueId: string, newText: string) => {
@@ -180,6 +196,7 @@ export default function ContentReviewPage() {
         i.id === issueId ? { ...i, edited_text: newText, suggestion: newText } : i
       ),
     });
+    showToast('Custom Edit Saved', newText, 'success');
   };
 
   const handleApplyAll = () => {
@@ -201,6 +218,7 @@ export default function ContentReviewPage() {
       ...reviewResult,
       issues: updatedIssues,
     });
+    showToast('All Corrections Applied', 'Content draft updated to brand standard.', 'success');
   };
 
   const handleResetAll = () => {
@@ -211,6 +229,7 @@ export default function ContentReviewPage() {
         issues: reviewResult.issues.map((i) => ({ ...i, status: 'pending' })),
       });
     }
+    showToast('Reverted', 'Reset text to original draft.', 'info');
   };
 
   const handleSubmitToQueue = async () => {
@@ -232,7 +251,6 @@ export default function ContentReviewPage() {
           latestReview: reviewResult
             ? {
                 ...reviewResult,
-                // Recalculate score if corrections were accepted
                 compliance_score: Math.min(
                   100,
                   reviewResult.compliance_score +
@@ -246,17 +264,22 @@ export default function ContentReviewPage() {
       const json = await res.json();
       if (json.success) {
         setIsQueueModalOpen(false);
+        showToast('Submitted to Queue', `Placed in reviewer approval queue`, 'success');
         router.push(`/queue/${json.data.id}`);
       }
     } catch (e) {
       console.error('Queue submission failed', e);
+      showToast('Submission Error', 'Failed to submit to queue', 'error');
     } finally {
       setIsSubmittingToQueue(false);
     }
   };
 
+  const wordCount = rawText.trim().split(/\s+/).filter(Boolean).length;
+  const readingTimeSec = Math.ceil((wordCount / 200) * 60);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Page Title & Fast-Track Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -269,15 +292,13 @@ export default function ContentReviewPage() {
             Evaluate draft content against NovaTech brand guidelines, tone, facts, and terminology with explainable evidence.
           </p>
         </div>
-
-        <button
-          onClick={handleLoadSample}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/70 text-blue-700 text-xs font-semibold shadow-xs transition-colors self-start sm:self-auto"
-        >
-          <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-          <span>Load Sample Copy (With Violations)</span>
-        </button>
       </div>
+
+      {/* Interactive Scenario Switcher */}
+      <ScenarioSwitcher
+        onSelect={handleSelectScenario}
+        activeScenarioId={activeScenarioId}
+      />
 
       {/* Main Content Submission Form */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
@@ -369,10 +390,16 @@ export default function ContentReviewPage() {
           />
         </div>
 
-        {/* Run Review CTA */}
-        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-          <div className="text-xs text-slate-500">
-            {rawText.trim().split(/\s+/).filter(Boolean).length} words ready for brand governance check
+        {/* Run Review CTA & Reading Stats */}
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-3">
+          <div className="flex items-center gap-3 text-xs text-slate-500">
+            <span>{wordCount} words</span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3 text-slate-400" /> ~{readingTimeSec}s read
+            </span>
+            <span>•</span>
+            <span className="text-emerald-700 font-medium">Ready for compliance check</span>
           </div>
 
           <button

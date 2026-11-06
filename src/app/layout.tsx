@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { RoleProvider } from '@/components/layout/RoleContext';
+import { ToastProvider } from '@/components/ui/Toast';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 
@@ -19,16 +20,18 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-slate-50 text-slate-900 min-h-screen flex antialiased">
         <RoleProvider>
-          {/* Fixed Sidebar */}
-          <Sidebar />
+          <ToastProvider>
+            {/* Fixed Sidebar */}
+            <Sidebar />
 
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-            <Header />
-            <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto">
-              {children}
-            </main>
-          </div>
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+              <Header />
+              <main className="flex-1 p-6 lg:p-8 max-w-7xl w-full mx-auto">
+                {children}
+              </main>
+            </div>
+          </ToastProvider>
         </RoleProvider>
       </body>
     </html>
