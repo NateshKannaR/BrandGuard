@@ -6,6 +6,7 @@
 
 <div align="center">
 
+[![Live Product](https://img.shields.io/badge/Live%20Product-brandguardai.vercel.app-2563EB?style=for-the-badge&logo=vercel)](https://brandguardai.vercel.app/)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=vercel)](https://github.com/NateshKannaR/BrandGuard)
 [![Test Suite](https://img.shields.io/badge/Tests-16%2F16%20Passed-blue?style=for-the-badge&logo=vitest)](https://github.com/NateshKannaR/BrandGuard)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2%20App%20Router-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
@@ -13,7 +14,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/UI-Hyper--Modern%20Glass-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com)
 [![Persistence](https://img.shields.io/badge/Storage-Zero--Latency%20Store%20%2B%20Supabase-10b981?style=for-the-badge&logo=supabase)](https://supabase.com)
 
-**[🌟 Live GitHub Repository](https://github.com/NateshKannaR/BrandGuard.git) • [⚡ 2-Minute Judge Walkthrough](#-2-minute-interactive-judge-fast-track) • [📊 Scoring Rubric Mapping](#-round-2-hackathon-scoring-alignment-100100)**
+**[🌐 Live Deployed Application](https://brandguardai.vercel.app/) • [🌟 GitHub Repository](https://github.com/NateshKannaR/BrandGuard.git) • [⚡ 2-Minute Judge Walkthrough](#-2-minute-interactive-judge-fast-track) • [📊 Scoring Rubric](#-round-2-hackathon-scoring-alignment-100100)**
 
 </div>
 
@@ -45,11 +46,11 @@ For hackathon judges evaluating this submission, follow this simple 5-step journ
 
 | Step | Page | Action | What to Observe |
 |---|---|---|---|
-| **1** | **[Command Center](http://localhost:3000/)** | Navigate to `/` | Notice the **glowing midnight command banner**, live compliance score dial (88.4%), hydrated KPI metrics (`51 Evaluated`, `91.2% Acceptance`), and recent submissions. |
-| **2** | **[Knowledge Hub](http://localhost:3000/guidelines)** | Navigate to `/guidelines` | Click category filter pills (`Terminology`, `Tone of Voice`). Observe 9 active rules with exact document citations, category color accents, and the **AI Rule Extractor** modal. |
-| **3** | **[Content Review](http://localhost:3000/review)** | Navigate to `/review` | Click scenario preset **"Hyperbolic SaaS Landing Page"** &rarr; click **"Run Compliance Review"**. Watch the explainable Evidence Cards cite internal source documents. Then click **"Apply All Corrections"** in the Diff Editor to see the copy instantly sanitize. Click **"Submit to Queue"**. |
-| **4** | **[Review Queue](http://localhost:3000/queue)** | Navigate to `/queue/[id]` | Notice publication is gated. In the top-right header, switch role to **Elena Rostova (Reviewer)**. Click **"Approve for Publication"** &rarr; view the **Verifiable Digital Compliance Certificate** modal with cryptographic verification hash. |
-| **5** | **[Visual Review](http://localhost:3000/visual-review)** | Navigate to `/visual-review` | Click **"Load Sample Creative Banner"** &rarr; click **"Analyze Creative Asset"**. Toggle the **24px Logo Safe-Zone Guide** and click the **Live Pixel Eyedropper** on the darkroom canvas to inspect real-time RGB values and WCAG contrast. |
+| **1** | **[Command Center](https://brandguardai.vercel.app/)** | Navigate to `/` | Notice the **glowing midnight command banner**, live compliance score dial (88.4%), hydrated KPI metrics (`51 Evaluated`, `91.2% Acceptance`), and recent submissions. |
+| **2** | **[Knowledge Hub](https://brandguardai.vercel.app/guidelines)** | Navigate to `/guidelines` | Click category filter pills (`Terminology`, `Tone of Voice`). Observe 9 active rules with exact document citations, category color accents, and the **AI Rule Extractor** modal. |
+| **3** | **[Content Review](https://brandguardai.vercel.app/review)** | Navigate to `/review` | Click scenario preset **"Hyperbolic SaaS Landing Page"** &rarr; click **"Run Compliance Review"**. Watch the explainable Evidence Cards cite internal source documents. Then click **"Apply All Corrections"** in the Diff Editor to see the copy instantly sanitize. Click **"Submit to Queue"**. |
+| **4** | **[Review Queue](https://brandguardai.vercel.app/queue)** | Navigate to `/queue` | Notice publication is gated. In the top-right header, switch role to **Elena Rostova (Reviewer)**. Click **"Approve for Publication"** &rarr; view the **Verifiable Digital Compliance Certificate** modal with cryptographic verification hash. |
+| **5** | **[Visual Review](https://brandguardai.vercel.app/visual-review)** | Navigate to `/visual-review` | Click **"Load Sample Creative Banner"** &rarr; click **"Analyze Creative Asset"**. Toggle the **24px Logo Safe-Zone Guide** and click the **Live Pixel Eyedropper** on the darkroom canvas to inspect real-time RGB values and WCAG contrast. |
 
 > [!TIP]
 > **Audit Mode / Role Simulator**: Built directly into the global header! Judges can seamlessly switch between **Alex Chen (Creator)** and **Elena Rostova (Reviewer)** with a single click to test role-gated publication controls without needing multiple corporate SSO logins.
