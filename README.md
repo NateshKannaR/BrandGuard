@@ -1,20 +1,20 @@
 # BrandGuard AI
 ### 🛡️ Explainable AI-Powered Brand Governance Platform
-**Hackathon Round 2: The Build — Submission & Evaluation Guide**
+**Hackathon Round 3: The Final Product — Submission & Evaluation Guide**
 
 ---
 
 <div align="center">
 
 [![Live Product](https://img.shields.io/badge/Live%20Product-brandguardai.vercel.app-2563EB?style=for-the-badge&logo=vercel)](https://brandguardai.vercel.app/)
+[![Round 3 Status](https://img.shields.io/badge/Round%203-All%203%20Improvements%20Shipped-059669?style=for-the-badge)](https://brandguardai.vercel.app/)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=vercel)](https://github.com/NateshKannaR/BrandGuard)
 [![Test Suite](https://img.shields.io/badge/Tests-16%2F16%20Passed-blue?style=for-the-badge&logo=vitest)](https://github.com/NateshKannaR/BrandGuard)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2%20App%20Router-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%20Strict-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/UI-Hyper--Modern%20Glass-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com)
-[![Persistence](https://img.shields.io/badge/Storage-Zero--Latency%20Store%20%2B%20Supabase-10b981?style=for-the-badge&logo=supabase)](https://supabase.com)
 
-**[🌐 Live Deployed Application](https://brandguardai.vercel.app/) • [🌟 GitHub Repository](https://github.com/NateshKannaR/BrandGuard.git) • [⚡ 2-Minute Judge Walkthrough](#-2-minute-interactive-judge-fast-track) • [📊 Scoring Rubric](#-round-2-hackathon-scoring-alignment-100100)**
+**[🌐 Live Deployed Application](https://brandguardai.vercel.app/) • [🌟 GitHub Repository](https://github.com/NateshKannaR/BrandGuard.git) • [⚡ 2-Minute Judge Walkthrough](#-2-minute-interactive-judge-fast-track)**
 
 </div>
 
@@ -42,15 +42,18 @@ Instead of vague critiques, BrandGuard AI:
 
 ## ⚡ 2-Minute Interactive Judge Fast-Track
 
-For hackathon judges evaluating this submission, follow this simple 5-step journey to experience the full end-to-end platform in under 2 minutes:
+For hackathon judges evaluating this submission, follow this simple journey to experience the full end-to-end platform in under 2 minutes:
 
 | Step | Page | Action | What to Observe |
 |---|---|---|---|
-| **1** | **[Command Center](https://brandguardai.vercel.app/)** | Navigate to `/` | Notice the **glowing midnight command banner**, live compliance score dial (88.4%), hydrated KPI metrics (`51 Evaluated`, `91.2% Acceptance`), and recent submissions. |
+| **1** | **[Command Center](https://brandguardai.vercel.app/)** | Navigate to `/` | Notice the **glowing midnight command banner**, live compliance score dial (88.4%), hydrated KPI metrics (`51 Evaluated`, `91.2% Acceptance`), and Round 3 feature cards. |
 | **2** | **[Knowledge Hub](https://brandguardai.vercel.app/guidelines)** | Navigate to `/guidelines` | Click category filter pills (`Terminology`, `Tone of Voice`). Observe 9 active rules with exact document citations, category color accents, and the **AI Rule Extractor** modal. |
 | **3** | **[Content Review](https://brandguardai.vercel.app/review)** | Navigate to `/review` | Click scenario preset **"Hyperbolic SaaS Landing Page"** &rarr; click **"Run Compliance Review"**. Watch the explainable Evidence Cards cite internal source documents. Then click **"Apply All Corrections"** in the Diff Editor to see the copy instantly sanitize. Click **"Submit to Queue"**. |
 | **4** | **[Review Queue](https://brandguardai.vercel.app/queue)** | Navigate to `/queue` | Notice publication is gated. In the top-right header, switch role to **Elena Rostova (Reviewer)**. Click **"Approve for Publication"** &rarr; view the **Verifiable Digital Compliance Certificate** modal with cryptographic verification hash. |
 | **5** | **[Visual Review](https://brandguardai.vercel.app/visual-review)** | Navigate to `/visual-review` | Click **"Load Sample Creative Banner"** &rarr; click **"Analyze Creative Asset"**. Toggle the **24px Logo Safe-Zone Guide** and click the **Live Pixel Eyedropper** on the darkroom canvas to inspect real-time RGB values and WCAG contrast. |
+| **6** | **[RAG & Drift (R3 Improvement 1)](https://brandguardai.vercel.app/drift)** | Navigate to `/drift` | Click **"Run Autonomous Drift Audit"** &rarr; observe 94% SLA inflation drift & 68% terminology drift detection. Click **"Auto-Resolve & Sync"** and test vector search across 4 documents. |
+| **7** | **[Omnichannel Studio (R3 Improvement 2)](https://brandguardai.vercel.app/extensions)** | Navigate to `/extensions` | Test the **Google Docs / Notion Chrome Extension Simulator** with live text injection, and test the **Figma Design Token Governor** with 1-click token auto-repair. |
+| **8** | **[Workspaces & Webhooks (R3 Improvement 3)](https://brandguardai.vercel.app/workspaces)** | Navigate to `/workspaces` | Switch between 4 multi-tenant divisions, adjust the tiered approval sliders (AI &rarr; Brand &rarr; Legal), and click **"Dispatch Cryptographic Test Webhook"** to see live HMAC-SHA256 delivery. |
 
 > [!TIP]
 > **Audit Mode / Role Simulator**: Built directly into the global header! Judges can seamlessly switch between **Alex Chen (Creator)** and **Elena Rostova (Reviewer)** with a single click to test role-gated publication controls without needing multiple corporate SSO logins.

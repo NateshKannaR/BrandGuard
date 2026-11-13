@@ -15,6 +15,9 @@ import {
   Sparkles,
   Zap,
   Activity,
+  GitCompare,
+  Layers,
+  Building2,
 } from 'lucide-react';
 import { useRole } from './RoleContext';
 
@@ -24,6 +27,9 @@ const navItems = [
   { href: '/guidelines', label: 'Knowledge Hub', icon: BookOpen },
   { href: '/queue', label: 'Review Queue', icon: Inbox },
   { href: '/visual-review', label: 'Visual Studio', icon: ImageIcon, badge: 'Canvas', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' },
+  { href: '/drift', label: 'RAG & Drift Engine', icon: GitCompare, badge: 'R3 New', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
+  { href: '/extensions', label: 'Omnichannel Studio', icon: Layers, badge: 'R3 New', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30' },
+  { href: '/workspaces', label: 'Enterprise Workspaces', icon: Building2, badge: 'R3 New', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' },
   { href: '/analytics', label: 'Governance Analytics', icon: BarChart3 },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
