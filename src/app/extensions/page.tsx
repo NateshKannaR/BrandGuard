@@ -118,51 +118,53 @@ export default function ExtensionsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           {activeTab === 'chrome' ? (
             <button
               onClick={downloadExtensionBundle}
-              className="flex items-center gap-2 px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>Download Chrome Extension Bundle</span>
+              <span>Download Chrome Bundle</span>
             </button>
           ) : (
             <button
               onClick={downloadFigmaManifest}
-              className="flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
+              className="w-full sm:w-auto justify-center flex items-center gap-2 px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
             >
               <Download className="h-3.5 w-3.5" />
-              <span>Download Figma Plugin Bundle</span>
+              <span>Download Figma Bundle</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('chrome')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'chrome'
               ? 'bg-slate-950 text-white shadow-sm ring-1 ring-slate-800'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
           }`}
         >
           <Chrome className="h-4 w-4 text-emerald-400" />
-          <span>Chrome Extension (Google Docs & Notion Simulator)</span>
+          <span className="hidden sm:inline">Chrome Extension (Google Docs & Notion Simulator)</span>
+          <span className="sm:hidden">Chrome Simulator (Docs/Notion)</span>
         </button>
 
         <button
           onClick={() => setActiveTab('figma')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'figma'
               ? 'bg-slate-950 text-white shadow-sm ring-1 ring-slate-800'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
           }`}
         >
           <Figma className="h-4 w-4 text-purple-400" />
-          <span>Figma Plugin (Design Token Governor Simulator)</span>
+          <span className="hidden sm:inline">Figma Plugin (Design Token Governor Simulator)</span>
+          <span className="sm:hidden">Figma Token Governor</span>
         </button>
       </div>
 

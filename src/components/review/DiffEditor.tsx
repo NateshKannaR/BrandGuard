@@ -66,11 +66,11 @@ export function DiffEditor({
   return (
     <div className="glass-card rounded-3xl border border-slate-200/90 shadow-xs overflow-hidden flex flex-col">
       {/* Editor Controls Bar */}
-      <div className="px-6 py-4 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl text-xs font-semibold">
+      <div className="px-4 sm:px-6 py-4 border-b border-slate-200/80 bg-slate-50/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1 bg-slate-200/60 p-1 rounded-xl text-xs font-semibold overflow-x-auto max-w-full w-full sm:w-auto scrollbar-none">
           <button
             onClick={() => setViewMode('interactive')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all shrink-0 ${
               viewMode === 'interactive'
                 ? 'bg-white text-blue-700 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
@@ -81,7 +81,7 @@ export function DiffEditor({
           </button>
           <button
             onClick={() => setViewMode('side-by-side')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all shrink-0 ${
               viewMode === 'side-by-side'
                 ? 'bg-white text-blue-700 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
@@ -92,7 +92,7 @@ export function DiffEditor({
           </button>
           <button
             onClick={() => setViewMode('raw')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all shrink-0 ${
               viewMode === 'raw'
                 ? 'bg-white text-blue-700 shadow-xs font-bold'
                 : 'text-slate-600 hover:text-slate-900'
@@ -104,11 +104,11 @@ export function DiffEditor({
         </div>
 
         {/* Batch Actions */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto justify-end">
           {pendingIssues.length > 0 && (
             <button
               onClick={onApplyAll}
-              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto justify-center"
             >
               <CheckCheck className="h-3.5 w-3.5" />
               <span>Apply All Corrections ({pendingIssues.length})</span>

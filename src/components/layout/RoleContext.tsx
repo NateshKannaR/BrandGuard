@@ -10,6 +10,8 @@ interface RoleContextType {
   switchUser: (userId: string) => Promise<void>;
   resetDemoData: () => Promise<void>;
   isLoading: boolean;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
@@ -18,6 +20,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User>(DEMO_USERS[0]);
   const [users, setUsers] = useState<User[]>(DEMO_USERS);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -71,7 +74,17 @@ export function RoleProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <RoleContext.Provider value={{ currentUser, users, switchUser, resetDemoData, isLoading }}>
+    <RoleContext.Provider
+      value={{
+        currentUser,
+        users,
+        switchUser,
+        resetDemoData,
+        isLoading,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
+      }}
+    >
       {children}
     </RoleContext.Provider>
   );

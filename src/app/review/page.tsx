@@ -466,8 +466,8 @@ export default function ContentReviewPage() {
             </div>
 
             {/* Compliance Score Badge */}
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="text-right">
+            <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+              <div className="text-left sm:text-right">
                 <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
                   Compliance Score
                 </div>

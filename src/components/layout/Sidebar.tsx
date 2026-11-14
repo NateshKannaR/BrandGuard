@@ -18,6 +18,7 @@ import {
   GitCompare,
   Layers,
   Building2,
+  X,
 } from 'lucide-react';
 import { useRole } from './RoleContext';
 
@@ -36,27 +37,39 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { currentUser } = useRole();
+  const { currentUser, isMobileMenuOpen, setIsMobileMenuOpen } = useRole();
 
-  return (
-    <aside className="w-64 bg-slate-950 text-slate-300 flex flex-col shrink-0 border-r border-slate-800/80 min-h-screen relative z-20">
+  const renderNavContent = (isMobile = false) => (
+    <>
       {/* Brand Logo & Name */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-800/80 gap-3 bg-slate-950/50">
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 rounded-xl blur-xs opacity-75 group-hover:opacity-100 transition duration-300"></div>
-          <div className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
-            <ShieldCheck className="h-5 w-5" />
+      <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800/80 bg-slate-950/50">
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 rounded-xl blur-xs opacity-75 group-hover:opacity-100 transition duration-300"></div>
+            <div className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+          </div>
+          <div>
+            <div className="font-extrabold text-white tracking-tight flex items-center gap-1.5 text-base">
+              BrandGuard
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-blue-500/30 to-indigo-500/30 text-blue-300 font-mono font-bold border border-blue-400/40">
+                AI
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 font-medium">Enterprise Governance</p>
           </div>
         </div>
-        <div>
-          <div className="font-extrabold text-white tracking-tight flex items-center gap-1.5 text-base">
-            BrandGuard
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-blue-500/30 to-indigo-500/30 text-blue-300 font-mono font-bold border border-blue-400/40">
-              AI
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400 font-medium">Enterprise Governance</p>
-        </div>
+
+        {isMobile && (
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-900 transition-colors"
+            aria-label="Close navigation"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Workspace Indicator */}
@@ -77,7 +90,7 @@ export function Sidebar() {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-1">
+      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
           const Icon = item.icon;
@@ -85,6 +98,9 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => {
+                if (isMobile) setIsMobileMenuOpen(false);
+              }}
               className={`group relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
                 isActive
                   ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20'
@@ -158,6 +174,31 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-slate-950 text-slate-300 flex-col shrink-0 border-r border-slate-800/80 min-h-screen sticky top-0 h-screen z-20">
+        {renderNavContent(false)}
+      </aside>
+
+      {/* Mobile Slide-Over Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs transition-opacity animate-in fade-in"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          {/* Slide-over panel */}
+          <aside className="relative w-72 max-w-[85vw] bg-slate-950 text-slate-300 flex flex-col shrink-0 border-r border-slate-800/80 h-full z-10 shadow-2xl animate-in slide-in-from-left duration-200">
+            {renderNavContent(true)}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

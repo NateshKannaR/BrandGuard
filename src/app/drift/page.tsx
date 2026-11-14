@@ -208,30 +208,31 @@ export default function DriftEnginePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
+            className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isScanning ? 'animate-spin' : ''}`} />
-            <span>{isScanning ? 'Scanning Repositories...' : 'Run Autonomous Drift Audit'}</span>
+            <span>{isScanning ? 'Scanning...' : 'Run Autonomous Drift Audit'}</span>
           </button>
         </div>
       </div>
 
       {/* Mode Segmented Controls */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('drift')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'drift'
               ? 'bg-slate-950 text-white shadow-sm ring-1 ring-slate-800'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
           }`}
         >
           <GitCompare className="h-4 w-4 text-amber-400" />
-          <span>Autonomous Drift Detector</span>
+          <span className="hidden sm:inline">Autonomous Drift Detector</span>
+          <span className="sm:hidden">Drift Detector</span>
           <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-bold">
             {drifts.filter((d) => d.status === 'Detected').length} Active
           </span>
@@ -239,14 +240,15 @@ export default function DriftEnginePage() {
 
         <button
           onClick={() => setActiveTab('rag')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'rag'
               ? 'bg-slate-950 text-white shadow-sm ring-1 ring-slate-800'
               : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
           }`}
         >
           <Database className="h-4 w-4 text-blue-400" />
-          <span>Multi-Doc Vector Knowledge Base</span>
+          <span className="hidden sm:inline">Multi-Doc Vector Knowledge Base</span>
+          <span className="sm:hidden">Vector RAG</span>
           <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-300 font-bold">
             4 Documents
           </span>

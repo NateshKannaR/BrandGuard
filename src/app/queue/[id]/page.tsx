@@ -277,7 +277,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
       </div>
 
       {/* Tabs: Content Review, Revision History, Review Comments */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('content')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${

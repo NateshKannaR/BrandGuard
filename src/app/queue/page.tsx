@@ -201,10 +201,10 @@ export default function ReviewQueuePage() {
               </div>
 
               {/* Right Side Stats & Link */}
-              <div className="flex items-center gap-4 shrink-0 self-end md:self-center">
+              <div className="flex items-center gap-3 sm:gap-4 shrink-0 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-2.5 md:pt-0 border-slate-100">
                 {sub.latestReview && (
-                  <div className="text-right">
-                    <div className="text-xs font-black text-slate-900 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200">
+                  <div className="text-left md:text-right">
+                    <div className="text-xs font-black text-slate-900 px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 inline-block">
                       {sub.latestReview.compliance_score}/100
                     </div>
                     <div className="text-[10px] text-slate-500 font-medium mt-0.5">

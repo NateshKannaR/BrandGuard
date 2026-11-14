@@ -41,7 +41,7 @@ export function EvidenceCard({ issue, onAccept, onReject, onEdit }: EvidenceCard
       }`}
     >
       {/* Top Card Header */}
-      <div className="px-6 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50/40">
+      <div className="px-4 sm:px-6 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50/40">
         <div className="flex items-center gap-2 flex-wrap">
           <span
             className={`text-[11px] font-extrabold px-3 py-0.5 rounded-full border ${getSeverityBadgeClass(
@@ -61,12 +61,12 @@ export function EvidenceCard({ issue, onAccept, onReject, onEdit }: EvidenceCard
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono font-semibold">
+        <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono font-semibold self-end sm:self-auto">
           AI Confidence: {Math.round(issue.confidence * 100)}%
         </div>
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 sm:p-6 space-y-4">
         {/* Issue Title & Description */}
         <div>
           <h4 className="text-sm font-black text-slate-900 tracking-tight">{issue.title}</h4>
@@ -161,7 +161,7 @@ export function EvidenceCard({ issue, onAccept, onReject, onEdit }: EvidenceCard
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 border-t border-slate-100 gap-3">
           <div className="text-xs text-slate-500 font-semibold">
             {isAccepted && (
               <span className="text-emerald-700 font-bold flex items-center gap-1.5">
@@ -175,7 +175,7 @@ export function EvidenceCard({ issue, onAccept, onReject, onEdit }: EvidenceCard
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             {isAccepted || isRejected ? (
               <button
                 onClick={() => onReject(issue.id)}

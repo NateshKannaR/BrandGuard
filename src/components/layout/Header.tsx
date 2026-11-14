@@ -17,12 +17,13 @@ import {
   PenTool,
   Award,
   Zap,
+  Menu,
 } from 'lucide-react';
 import { useRole } from './RoleContext';
 import { useToast } from '@/components/ui/Toast';
 
 export function Header() {
-  const { currentUser, users, switchUser, resetDemoData, isLoading } = useRole();
+  const { currentUser, users, switchUser, resetDemoData, isLoading, isMobileMenuOpen, setIsMobileMenuOpen } = useRole();
   const { showToast } = useToast();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
@@ -40,50 +41,59 @@ export function Header() {
   };
 
   return (
-    <header className="h-16 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      {/* BrandGuard Active Engine Badge */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border border-blue-200/80 text-xs text-blue-900 shadow-xs">
-          <span className="relative flex h-2.5 w-2.5">
+    <header className="h-16 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      {/* Left: Mobile hamburger + Active Engine Badge */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="lg:hidden p-2 -ml-1 text-slate-700 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors shrink-0"
+          aria-label="Toggle navigation menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        <div className="flex items-center gap-1.5 sm:gap-2.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border border-blue-200/80 text-xs text-blue-900 shadow-xs shrink-0">
+          <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-blue-600"></span>
           </span>
-          <span className="font-extrabold tracking-tight">Governance Engine:</span>
-          <span className="text-blue-700 font-mono text-[11px] font-semibold bg-white/80 px-2 py-0.5 rounded-full border border-blue-200/50">
-            {process.env.GEMINI_API_KEY ? 'Gemini 1.5 Pro' : 'Explainable Rule & Evidence Retrieval'}
+          <span className="hidden sm:inline font-extrabold tracking-tight">Governance Engine:</span>
+          <span className="sm:hidden font-extrabold tracking-tight">Engine:</span>
+          <span className="text-blue-700 font-mono text-[10px] sm:text-[11px] font-semibold bg-white/80 px-1.5 sm:px-2 py-0.5 rounded-full border border-blue-200/50 truncate max-w-[130px] sm:max-w-none">
+            {process.env.GEMINI_API_KEY ? 'Gemini 1.5' : 'Explainable Rule & Evidence'}
           </span>
         </div>
 
-        <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 font-medium px-2 py-1 rounded-lg bg-slate-50 border border-slate-200/60">
+        <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-500 font-medium px-2 py-1 rounded-lg bg-slate-50 border border-slate-200/60 shrink-0">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
           <span>9 NovaTech Rules Enforced</span>
         </div>
       </div>
 
-      {/* Actions: Role switcher, Demo Reset, New Review */}
-      <div className="flex items-center gap-3">
+      {/* Actions: Role switcher, Demo Reset */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         {/* Reset Demo Data Button */}
         <button
           onClick={resetDemoData}
           disabled={isLoading}
           title="Reset sample guidelines, reviews, and metrics"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-600 transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+          className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-600 transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
         >
           <RotateCcw className="h-3.5 w-3.5 text-slate-400" />
-          <span className="hidden sm:inline">Reset Baseline</span>
+          <span className="hidden md:inline">Reset Baseline</span>
         </button>
 
         {/* Demo Role Simulator Dropdown */}
         <div className="relative">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:scale-[1.02]"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:scale-[1.02]"
           >
-            <div className="h-5 w-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center">
+            <div className="h-5 w-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
               {React.createElement(getRoleIcon(currentUser.role), { className: 'h-3 w-3' })}
             </div>
-            <span className="hidden sm:inline text-slate-400 text-[11px]">Simulator:</span>
-            <span className="font-bold text-slate-900">{currentUser.name}</span>
+            <span className="hidden md:inline text-slate-400 text-[11px]">Simulator:</span>
+            <span className="hidden sm:inline font-bold text-slate-900">{currentUser.name}</span>
             <span
               className={`text-[9px] px-1.5 py-0.5 rounded-md uppercase font-mono font-bold ${
                 currentUser.role === 'reviewer'

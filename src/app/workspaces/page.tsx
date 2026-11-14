@@ -356,7 +356,7 @@ export default function WorkspacesPage() {
                   <span className="text-slate-400">{dispatchLog.durationMs}ms latency</span>
                 </div>
                 <div className="text-[10px] text-slate-400 truncate">Dest: {dispatchLog.destination}</div>
-                <pre className="text-[10px] text-blue-300 max-h-36 overflow-y-auto pt-1">
+                <pre className="text-[10px] text-blue-300 max-h-36 overflow-y-auto overflow-x-auto whitespace-pre-wrap break-all pt-1">
                   {JSON.stringify(dispatchLog.payload, null, 2)}
                 </pre>
               </div>
