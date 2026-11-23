@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, BookOpen, CheckCircle2,
-  ClipboardList, FileSearch, Image, Inbox, RefreshCw, ShieldCheck,
+  BarChart3, BookOpen, CheckCircle2,
+  ClipboardList, FileSearch, Image, Inbox, RefreshCw, Search, ShieldCheck,
 } from 'lucide-react';
 import type { ContentSubmission, GovernanceMetrics } from '@/types';
 import { formatDate, getStatusBadgeClass } from '@/lib/utils';
@@ -13,6 +13,7 @@ const statusFilters = [
   { label: 'All submissions', value: 'all' },
   { label: 'Needs review', value: 'pending' },
   { label: 'Approved', value: 'approved' },
+  { label: 'Changes requested', value: 'changes_requested' },
 ];
 
 const workspaceLinks = [
@@ -35,6 +36,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(0);
   const [filter, setFilter] = useState('all');
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -56,11 +58,25 @@ export default function DashboardPage() {
     { label: 'Average compliance', value: metrics ? `${metrics.avgComplianceScore}%` : undefined, icon: ShieldCheck, tone: 'bg-teal-100 text-teal-700' },
     { label: 'Corrections accepted', value: metrics ? `${metrics.correctionAcceptanceRate}%` : undefined, icon: CheckCircle2, tone: 'bg-sky-100 text-sky-700' },
   ];
-  const recent = submissions?.filter(({ status }) => {
+  const normalizedQuery = query.trim().toLowerCase();
+  const matches = submissions?.filter(({ title, contentType, status }) => {
+    if (!title.toLowerCase().includes(normalizedQuery) && !contentType.toLowerCase().includes(normalizedQuery)) return false;
     if (filter === 'all') return true;
     if (filter === 'pending') return status === 'submitted' || status === 'in_review';
     return status === filter;
-  }).slice(0, 5);
+  });
+  const recent = matches?.slice(0, 5);
+  const reviewStatus = metrics && [
+    { label: 'Approved', count: metrics.approvedCount, color: 'bg-emerald-500' },
+    { label: 'Needs review', count: metrics.pendingCount, color: 'bg-violet-500' },
+    { label: 'Changes requested', count: metrics.changesRequestedCount, color: 'bg-amber-500' },
+    { label: 'Rejected', count: metrics.rejectedCount, color: 'bg-rose-500' },
+    {
+      label: 'Drafts',
+      count: metrics.totalSubmissions - metrics.approvedCount - metrics.pendingCount - metrics.changesRequestedCount - metrics.rejectedCount,
+      color: 'bg-slate-400',
+    },
+  ];
 
   return (
     <div className="space-y-7 pb-6 lg:space-y-8">
@@ -69,12 +85,12 @@ export default function DashboardPage() {
           <h1 className="max-w-lg text-4xl font-semibold leading-[1.05] tracking-[-0.045em] sm:text-6xl">
             Keep every release on brand.
           </h1>
-          <p className="mt-4 max-w-md text-sm leading-6 text-violet-100 sm:text-base">
+          <p className="mt-4 max-w-md text-base leading-7 text-violet-100">
             Check copy against approved guidelines, trace findings to their source, and route submissions for approval.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link href="/review" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#e7faf0] px-4 text-sm font-semibold text-[#143f35] hover:bg-white">
-              <FileSearch className="size-4" /> Review content <ArrowRight className="size-4" />
+              <FileSearch className="size-4" /> Review content
             </Link>
             <Link href="/queue" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-4 text-sm font-semibold hover:bg-white/20">
               Open review queue
@@ -86,12 +102,12 @@ export default function DashboardPage() {
 
       <section aria-label="Workspace metrics" aria-busy={loading} className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         {stats.map(({ label, value, icon: Icon, tone }) => (
-          <div key={label} className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+          <div key={label} className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm sm:p-5">
             <span className={`inline-flex size-9 items-center justify-center rounded-lg ${tone}`}><Icon className="size-4" /></span>
             <div className="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-slate-950 sm:text-3xl">
               {value ?? (loading ? '…' : '—')}
             </div>
-            <div className="mt-1 text-xs font-medium text-slate-600 sm:text-sm">{label}</div>
+            <div className="mt-1 text-sm font-medium text-slate-600">{label}</div>
           </div>
         ))}
       </section>
@@ -109,11 +125,22 @@ export default function DashboardPage() {
         <section aria-labelledby="recent-heading" aria-busy={loading} className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5">
             <h2 id="recent-heading" className="text-lg font-semibold tracking-tight">Recent submissions</h2>
-            <Link href="/queue" className="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 hover:underline">View queue <ArrowUpRight className="size-4" /></Link>
+            <Link href="/queue" className="inline-flex items-center gap-1 text-sm font-semibold text-violet-700 hover:underline">View queue</Link>
           </div>
+          <label className="mx-5 mt-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 focus-within:border-violet-500">
+            <Search className="size-4 shrink-0 text-slate-500" aria-hidden="true" />
+            <span className="sr-only">Search submissions by title or content type</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search submissions"
+              className="min-h-11 min-w-0 flex-1 bg-transparent text-base text-slate-950 outline-none placeholder:text-slate-500 focus-visible:outline-none"
+            />
+          </label>
           <div className="flex flex-wrap gap-2 px-5 py-4" aria-label="Filter submissions" role="group">
             {statusFilters.map(({ label, value }) => (
-              <button key={value} aria-pressed={value === filter} onClick={() => setFilter(value)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${value === filter ? 'bg-violet-100 text-violet-900' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
+              <button key={value} aria-pressed={value === filter} onClick={() => setFilter(value)} className={`min-h-9 rounded-full px-3 text-sm font-semibold ${value === filter ? 'bg-violet-100 text-violet-900' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
                 {label}
               </button>
             ))}
@@ -127,39 +154,71 @@ export default function DashboardPage() {
                       <FileSearch className="hidden size-4 shrink-0 text-violet-600 sm:block" />
                       <div className="min-w-0 flex-1">
                         <div className="break-words text-sm font-semibold text-slate-950">{submission.title}</div>
-                        <div className="mt-1 text-xs text-slate-600">{submission.contentType} · {formatDate(submission.createdAt)}</div>
+                        <div className="mt-1 text-xs text-slate-600">{submission.contentType} · {formatDate(submission.updatedAt)}</div>
                       </div>
                       <span className={`shrink-0 rounded-full border px-2 py-1 text-[11px] font-semibold capitalize ${getStatusBadgeClass(submission.status)}`}>
                         {submission.status.replace(/_/g, ' ')}
                       </span>
-                      <ArrowRight className="hidden size-4 shrink-0 text-violet-700 sm:block" />
                     </Link>
                   </li>
                 ))}
               </ul>
             ) : (
               <p className="border-t border-slate-100 px-5 py-8 text-sm text-slate-600">
-                {loading ? 'Loading submissions…' : recent ? 'No submissions match this filter.' : 'Submissions are unavailable.'}
+                {loading ? 'Loading submissions…' : recent ? 'No submissions match your search and filters.' : 'Submissions are unavailable.'}
+              </p>
+            )}
+            {matches && matches.length > 5 && (
+              <p className="border-t border-slate-100 px-5 py-3 text-sm text-slate-600">
+                Showing the 5 most recently updated of {matches.length} matching submissions.
               </p>
             )}
           </div>
         </section>
 
-        <section aria-labelledby="tools-heading" className="rounded-2xl border border-slate-200 bg-white p-5">
-          <h2 id="tools-heading" className="text-lg font-semibold tracking-tight">Workspace tools</h2>
-          <div className="mt-3 divide-y divide-slate-100">
-            {workspaceLinks.map(({ title, detail, href, icon: Icon }) => (
-              <Link key={href} href={href} className="group flex items-center gap-3 rounded-lg py-4 hover:bg-violet-50/60">
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-violet-50 text-violet-700"><Icon className="size-4" /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold text-slate-950">{title}</span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-600">{detail}</span>
-                </span>
-                <ArrowDownRight className="size-4 shrink-0 -rotate-90 text-violet-600" />
-              </Link>
-            ))}
-          </div>
-        </section>
+        <div className="grid min-w-0 gap-5 sm:grid-cols-2 xl:grid-cols-1">
+          <section aria-labelledby="status-heading" aria-busy={loading} className="rounded-2xl border border-slate-200 bg-white p-5">
+            <h2 id="status-heading" className="text-lg font-semibold tracking-tight">Submission status</h2>
+            {metrics && reviewStatus && metrics.totalSubmissions > 0 ? (
+              <>
+                <div aria-hidden="true" className="mt-4 flex h-2.5 overflow-hidden rounded-full bg-slate-100">
+                  {reviewStatus.map(({ label, count, color }) => (
+                    <div key={label} className={color} style={{ width: `${count / metrics.totalSubmissions * 100}%` }} />
+                  ))}
+                </div>
+                <dl className="mt-4 space-y-2.5 text-sm">
+                  {reviewStatus.map(({ label, count, color }) => (
+                    <div key={label} className="flex items-center justify-between gap-3">
+                      <dt className="flex items-center gap-2 text-slate-700">
+                        <span aria-hidden="true" className={`size-2.5 rounded-sm ${color}`} />
+                        {label}
+                      </dt>
+                      <dd className="font-semibold tabular-nums text-slate-950">{count}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </>
+            ) : (
+              <p className="mt-3 text-sm text-slate-600">
+                {loading ? 'Loading submission status…' : metrics ? 'No submissions yet.' : 'Submission status is unavailable.'}
+              </p>
+            )}
+          </section>
+          <section aria-labelledby="tools-heading" className="rounded-2xl border border-slate-200 bg-white p-5">
+            <h2 id="tools-heading" className="text-lg font-semibold tracking-tight">Workspace tools</h2>
+            <div className="mt-3 divide-y divide-slate-100">
+              {workspaceLinks.map(({ title, detail, href, icon: Icon }) => (
+                <Link key={href} href={href} className="group flex items-center gap-3 rounded-lg py-4 hover:bg-violet-50/60">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-violet-50 text-violet-700"><Icon className="size-4" /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-slate-950">{title}</span>
+                    <span className="mt-1 block text-xs leading-5 text-slate-600">{detail}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );
