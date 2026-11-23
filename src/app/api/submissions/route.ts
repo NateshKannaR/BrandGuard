@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       currentText: body.currentText,
       reviewCategories: body.reviewCategories || ['Tone of Voice', 'Terminology', 'Approved Facts'],
       latestReview: body.latestReview,
+      reviewerNote: typeof body.reviewerNote === 'string' ? body.reviewerNote : undefined,
     });
 
     return NextResponse.json({ success: true, data: submission }, { status: 201 });

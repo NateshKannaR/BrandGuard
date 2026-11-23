@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  Download,
   FileSearch,
   Sparkles,
   UploadCloud,
@@ -26,6 +27,8 @@ import { DiffEditor } from '@/components/review/DiffEditor';
 import { EvidenceCard } from '@/components/review/EvidenceCard';
 import { ScenarioSwitcher, DemoScenario } from '@/components/review/ScenarioSwitcher';
 import { useRole } from '@/components/layout/RoleContext';
+import { downloadText } from '@/lib/download';
+import { formatReviewReport } from '@/lib/review-report';
 import { useToast } from '@/components/ui/Toast';
 
 const contentTypes: ContentType[] = [
@@ -273,6 +276,7 @@ export default function ContentReviewPage() {
           currentText,
           reviewCategories: selectedCategories,
           latestReview: reviewResult || undefined,
+          reviewerNote: submitNotes,
         }),
       });
 
@@ -512,6 +516,13 @@ export default function ContentReviewPage() {
               </button>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => downloadText('brandguard-compliance-review.txt', formatReviewReport(title, reviewResult), 'text/plain;charset=utf-8')}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-violet-700 hover:bg-violet-50"
+          >
+            <Download className="size-4" aria-hidden="true" /> Download review report
+          </button>
 
           {/* Positive Observations (if any) */}
           {reviewResult.positive_observations.length > 0 && (
@@ -616,10 +627,11 @@ export default function ContentReviewPage() {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">
+                <label htmlFor="reviewer-note" className="font-semibold text-slate-700 block mb-1">
                   Note or Context for Reviewer (optional)
                 </label>
                 <textarea
+                  id="reviewer-note"
                   rows={3}
                   placeholder="e.g. Applied all AI corrections for terminology and 99.95% SLA. Ready for Q1 campaign release."
                   value={submitNotes}

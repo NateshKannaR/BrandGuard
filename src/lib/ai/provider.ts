@@ -340,7 +340,7 @@ export function runDeterministicEvaluation(
   // 3. Approved Facts & SLA Verification
   if (categories.includes('Approved Facts')) {
     // 100% uptime check
-    const uptimeMatch = /(100%\s+uptime|zero\s+downtime(\s+ever)?|zero\s+crashes(\s+ever)?)/i.exec(content);
+    const uptimeMatch = /(100%\s+(?:unbreakable\s+)?uptime(?:\s+guarantee)?|zero\s+downtime(\s+ever)?|zero\s+crashes(\s+ever)?)/i.exec(content);
     if (uptimeMatch) {
       issues.push({
         id: `iss_fact_${Date.now()}_${issues.length}`,

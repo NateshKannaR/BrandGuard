@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { repository } from '@/lib/storage/repository';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const users = repository.getUsers();

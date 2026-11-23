@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { randomUUID } from 'node:crypto';
 import path from 'path';
 import {
   BrandGuideline,
@@ -35,12 +36,25 @@ interface DatabaseSchema {
   currentUser: User;
 }
 
+function createDemoDatabase(): DatabaseSchema {
+  return structuredClone({
+    organization: DEMO_ORGANIZATION,
+    users: DEMO_USERS,
+    guidelines: DEMO_GUIDELINES,
+    approvedFacts: DEMO_APPROVED_FACTS,
+    terminologyRules: DEMO_TERMINOLOGY_RULES,
+    brandAssets: DEMO_BRAND_ASSETS,
+    submissions: DEMO_SUBMISSIONS,
+    currentUser: DEMO_USERS[0],
+  });
+}
+
 class BrandGuardRepository {
   private dbPath: string;
   private data: DatabaseSchema;
 
   constructor() {
-    this.dbPath = path.join(process.cwd(), 'data', 'db.json');
+    this.dbPath = process.env.BRANDGUARD_DB_PATH || path.join(process.cwd(), 'data', 'db.json');
     this.data = this.loadDatabase();
   }
 
@@ -58,16 +72,7 @@ class BrandGuardRepository {
     }
 
     // Default seeded state
-    const initialData: DatabaseSchema = {
-      organization: { ...DEMO_ORGANIZATION },
-      users: [...DEMO_USERS],
-      guidelines: [...DEMO_GUIDELINES],
-      approvedFacts: [...DEMO_APPROVED_FACTS],
-      terminologyRules: [...DEMO_TERMINOLOGY_RULES],
-      brandAssets: [...DEMO_BRAND_ASSETS],
-      submissions: [...DEMO_SUBMISSIONS],
-      currentUser: DEMO_USERS[0],
-    };
+    const initialData = createDemoDatabase();
 
     this.saveDatabase(initialData);
     return initialData;
@@ -253,10 +258,12 @@ class BrandGuardRepository {
     reviewCategories: BrandGuideline['category'][];
     creator?: User;
     latestReview?: ReviewResult;
+    reviewerNote?: string;
   }): ContentSubmission {
     const creator = data.creator || this.getCurrentUser();
     const now = new Date().toISOString();
 
+    const note = data.reviewerNote?.trim();
     const currentText = data.currentText ?? data.rawText;
     const submission: ContentSubmission = {
       id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -270,7 +277,14 @@ class BrandGuardRepository {
       creatorName: creator.name,
       reviewCategories: data.reviewCategories,
       latestReview: data.latestReview,
-      comments: [],
+      comments: note ? [{
+        id: `comm_${randomUUID()}`,
+        authorId: creator.id,
+        authorName: creator.name,
+        authorRole: creator.role,
+        text: note,
+        createdAt: now,
+      }] : [],
       revisions: [
         {
           revisionNumber: 1,
@@ -424,16 +438,7 @@ class BrandGuardRepository {
 
   // --- Reset to Pristine State ---
   resetToDemoData(): void {
-    this.data = {
-      organization: { ...DEMO_ORGANIZATION },
-      users: [...DEMO_USERS],
-      guidelines: [...DEMO_GUIDELINES],
-      approvedFacts: [...DEMO_APPROVED_FACTS],
-      terminologyRules: [...DEMO_TERMINOLOGY_RULES],
-      brandAssets: [...DEMO_BRAND_ASSETS],
-      submissions: [...DEMO_SUBMISSIONS],
-      currentUser: DEMO_USERS[0],
-    };
+    this.data = createDemoDatabase();
     this.saveDatabase();
   }
 }
