@@ -99,3 +99,27 @@ body {
   font-weight: 600;
   box-shadow: 0 1px 2px rgba(34, 197, 94, 0.1);
 }
+
+.brand-hero {
+  background: radial-gradient(ellipse at 90% 100%, #4943a0 0%, transparent 58%), #24164f;
+}
+
+.brand-hero-art {
+  position: absolute;
+  right: -3rem;
+  top: 50%;
+  width: clamp(16rem, 31vw, 29rem);
+  aspect-ratio: 1;
+  transform: translateY(-50%) rotate(-12deg);
+  place-items: center;
+  color: #bdf4da;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, transparent 0 25px, #c8c1ff2b 26px 27px);
+  mask-image: radial-gradient(circle, black 0 45%, transparent 73%);
+  pointer-events: none;
+}
+
+:where(a, button, select, textarea, input):focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+}

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { repository } from '@/lib/storage/repository';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const metrics = repository.getMetrics();

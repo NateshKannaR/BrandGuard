@@ -249,6 +249,7 @@ class BrandGuardRepository {
     title: string;
     contentType: ContentSubmission['contentType'];
     rawText: string;
+    currentText?: string;
     reviewCategories: BrandGuideline['category'][];
     creator?: User;
     latestReview?: ReviewResult;
@@ -256,13 +257,14 @@ class BrandGuardRepository {
     const creator = data.creator || this.getCurrentUser();
     const now = new Date().toISOString();
 
+    const currentText = data.currentText ?? data.rawText;
     const submission: ContentSubmission = {
       id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       organizationId: this.data.organization.id,
       title: data.title,
       contentType: data.contentType,
       rawText: data.rawText,
-      currentText: data.rawText,
+      currentText,
       status: 'submitted',
       creatorId: creator.id,
       creatorName: creator.name,
@@ -272,7 +274,7 @@ class BrandGuardRepository {
       revisions: [
         {
           revisionNumber: 1,
-          content: data.rawText,
+          content: currentText,
           createdAt: now,
           createdBy: creator.name,
           changeSummary: 'Initial content submission',

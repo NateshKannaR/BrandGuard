@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    if (!body.title || !body.rawText) {
+    if (typeof body.title !== 'string' || !body.title.trim() || typeof body.rawText !== 'string' || !body.rawText.trim() || (body.currentText !== undefined && (typeof body.currentText !== 'string' || !body.currentText.trim()))) {
       return NextResponse.json(
         { success: false, error: 'Title and content text are required.' },
         { status: 400 }
@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
       title: body.title,
       contentType: body.contentType || 'General promotional content',
       rawText: body.rawText,
+      currentText: body.currentText,
       reviewCategories: body.reviewCategories || ['Tone of Voice', 'Terminology', 'Approved Facts'],
       latestReview: body.latestReview,
     });

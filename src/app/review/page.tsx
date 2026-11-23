@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   FileSearch,
@@ -67,7 +67,19 @@ export default function ContentReviewPage() {
   // Review & Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
-  const [uploadNotice, setUploadNotice] = useState<string>('');
+  const [uploadNotice, setUploadNotice] = useState('');
+  const [reviewError, setReviewError] = useState('');
+  const activeReview = useRef<AbortController | null>(null);
+
+  useEffect(() => () => activeReview.current?.abort(), []);
+
+  const invalidateReview = () => {
+    activeReview.current?.abort();
+    activeReview.current = null;
+    setIsAnalyzing(false);
+    setReviewResult(null);
+    setReviewError('');
+  };
 
   // Queue submission modal
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
@@ -75,16 +87,14 @@ export default function ContentReviewPage() {
   const [isSubmittingToQueue, setIsSubmittingToQueue] = useState(false);
 
   const toggleCategory = (cat: GuidelineCategory) => {
-    if (selectedCategories.includes(cat)) {
-      if (selectedCategories.length > 1) {
-        setSelectedCategories(selectedCategories.filter((c) => c !== cat));
-      }
-    } else {
-      setSelectedCategories([...selectedCategories, cat]);
-    }
+    const isSelected = selectedCategories.includes(cat);
+    if (isSelected && selectedCategories.length === 1) return;
+    invalidateReview();
+    setSelectedCategories(isSelected ? selectedCategories.filter((category) => category !== cat) : [...selectedCategories, cat]);
   };
 
   const handleSelectScenario = (scenario: DemoScenario) => {
+    invalidateReview();
     setActiveScenarioId(scenario.id);
     setTitle(scenario.title);
     setContentType(scenario.contentType);
@@ -92,7 +102,6 @@ export default function ContentReviewPage() {
     setRawText(scenario.text);
     setCurrentText(scenario.text);
     setUploadNotice('');
-    setReviewResult(null);
     showToast('Loaded Scenario', `"${scenario.name}" preset applied.`, 'info');
   };
 
@@ -102,7 +111,13 @@ export default function ContentReviewPage() {
 
     setUploadNotice(`Processing ${file.name}...`);
     try {
+      if (!/\.(txt|md)$/i.test(file.name)) {
+        setUploadNotice('Choose a TXT or Markdown file.');
+        return;
+      }
       const text = await file.text();
+      invalidateReview();
+      setActiveScenarioId(undefined);
       setRawText(text);
       setCurrentText(text);
       if (!title) {
@@ -120,14 +135,19 @@ export default function ContentReviewPage() {
   const handleRunReview = async (textToReview?: string) => {
     const content = textToReview !== undefined ? textToReview : currentText;
     if (!content.trim()) {
-      alert('Please enter or upload content to review.');
+      setReviewError('Enter a draft or import a text file first.');
       return;
     }
 
+    activeReview.current?.abort();
+    const controller = new AbortController();
+    activeReview.current = controller;
+    setReviewError('');
     setIsAnalyzing(true);
     try {
       const res = await fetch('/api/review', {
         method: 'POST',
+        signal: controller.signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content,
@@ -137,7 +157,8 @@ export default function ContentReviewPage() {
       });
 
       const json = await res.json();
-      if (json.success) {
+      if (controller.signal.aborted) return;
+      if (res.ok && json.success) {
         setReviewResult(json.data);
         showToast(
           'Compliance Evaluation Complete',
@@ -145,13 +166,15 @@ export default function ContentReviewPage() {
           json.data.issues.length === 0 ? 'success' : 'warning'
         );
       } else {
-        alert(`Analysis error: ${json.error}`);
+        setReviewError(json.error || "Review failed. Try again.");
       }
     } catch (err) {
-      console.error('Compliance review error', err);
-      showToast('Evaluation Error', 'Failed to run review engine', 'error');
+      if (!controller.signal.aborted) setReviewError('Could not reach the review engine. Try again.');
     } finally {
-      setIsAnalyzing(false);
+      if (activeReview.current === controller) {
+        activeReview.current = null;
+        setIsAnalyzing(false);
+      }
     }
   };
 
@@ -234,7 +257,7 @@ export default function ContentReviewPage() {
 
   const handleSubmitToQueue = async () => {
     if (!title.trim()) {
-      alert('Please enter a submission title');
+      showToast('Title required', 'Enter a title before sending this draft to the queue.', 'warning');
       return;
     }
 
@@ -247,17 +270,9 @@ export default function ContentReviewPage() {
           title,
           contentType,
           rawText,
+          currentText,
           reviewCategories: selectedCategories,
-          latestReview: reviewResult
-            ? {
-                ...reviewResult,
-                compliance_score: Math.min(
-                  100,
-                  reviewResult.compliance_score +
-                    reviewResult.issues.filter((i) => i.status === 'accepted').length * 12
-                ),
-              }
-            : undefined,
+          latestReview: reviewResult || undefined,
         }),
       });
 
@@ -266,6 +281,8 @@ export default function ContentReviewPage() {
         setIsQueueModalOpen(false);
         showToast('Submitted to Queue', `Placed in reviewer approval queue`, 'success');
         router.push(`/queue/${json.data.id}`);
+      } else {
+        showToast('Submission Error', json.error || 'Failed to submit to queue', 'error');
       }
     } catch (e) {
       console.error('Queue submission failed', e);
@@ -284,11 +301,7 @@ export default function ContentReviewPage() {
       {/* Page Title & Fast-Track Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
-            <FileSearch className="h-4 w-4" />
-            Compliance Studio
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">AI Content Compliance Review</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Review content</h1>
           <p className="text-xs text-slate-500 mt-1">
             Evaluate draft content against NovaTech brand guidelines, tone, facts, and terminology with explainable evidence.
           </p>
@@ -305,8 +318,9 @@ export default function ContentReviewPage() {
       <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-2">Campaign or Content Title *</label>
+            <label htmlFor="content-title" className="block text-sm font-semibold text-slate-800 mb-2">Content title</label>
             <input
+              id="content-title"
               type="text"
               placeholder="e.g. Q1 Enterprise Cloud Launch Announcement"
               value={title}
@@ -316,10 +330,11 @@ export default function ContentReviewPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-800 mb-2">Content Channel & Type *</label>
+            <label htmlFor="content-type" className="block text-sm font-semibold text-slate-800 mb-2">Content type</label>
             <select
+              id="content-type"
               value={contentType}
-              onChange={(e) => setContentType(e.target.value as ContentType)}
+              onChange={(e) => { invalidateReview(); setContentType(e.target.value as ContentType); }}
               className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white transition-all text-slate-800"
             >
               {contentTypes.map((t) => (
@@ -341,6 +356,7 @@ export default function ContentReviewPage() {
                 <button
                   key={cat}
                   type="button"
+                  aria-pressed={isSelected}
                   onClick={() => toggleCategory(cat)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 flex items-center gap-1.5 ${
                     isSelected
@@ -362,16 +378,16 @@ export default function ContentReviewPage() {
 
         {/* Content Input or Upload Area */}
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-800">Draft Copy for Audit *</label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <label htmlFor="draft-copy" className="text-sm font-semibold text-slate-800">Draft copy</label>
             <label className="cursor-pointer text-xs text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1.5 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors">
               <UploadCloud className="h-3.5 w-3.5" />
-              <span>Import Document (TXT / PDF / DOCX)</span>
+              <span>Import text (TXT / MD)</span>
               <input
                 type="file"
-                accept=".txt,.pdf,.docx,.md"
+                accept=".txt,.md"
                 onChange={handleFileUpload}
-                className="hidden"
+                className="sr-only"
               />
             </label>
           </div>
@@ -385,14 +401,17 @@ export default function ContentReviewPage() {
 
           <div className="relative rounded-2xl border border-slate-200 bg-slate-50/50 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all overflow-hidden">
             <textarea
+              id="draft-copy"
               rows={5}
               placeholder="Paste your draft marketing copy, website text, or campaign messaging here..."
               value={rawText}
               onChange={(e) => {
+                invalidateReview();
+                setActiveScenarioId(undefined);
                 setRawText(e.target.value);
                 setCurrentText(e.target.value);
               }}
-              className="w-full p-4 border-none text-xs font-normal focus:outline-none bg-transparent leading-relaxed text-slate-800 placeholder:text-slate-400 resize-y"
+              className="w-full p-4 border-none text-sm font-normal focus:outline-none bg-transparent leading-relaxed text-slate-800 placeholder:text-slate-400 resize-y"
             />
 
             {/* Live Telemetry Pill Bar */}
@@ -406,12 +425,12 @@ export default function ContentReviewPage() {
                   <Clock className="h-3 w-3 text-slate-400" /> ~{readingTimeSec}s read
                 </span>
               </div>
-              <span className="text-emerald-700 font-bold flex items-center gap-1">
-                <ShieldCheck className="h-3.5 w-3.5" /> Ready for Audit
-              </span>
+
             </div>
           </div>
         </div>
+
+        {reviewError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-900">{reviewError}</p>}
 
         {/* Run Review CTA */}
         <div className="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-3">
@@ -427,7 +446,7 @@ export default function ContentReviewPage() {
             {isAnalyzing ? (
               <>
                 <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Evaluating Against 9 Brand Rules...</span>
+                <span>Reviewing draft…</span>
               </>
             ) : (
               <>
